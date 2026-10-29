@@ -15,7 +15,8 @@ One UI pop-up app windows and built-in apps. No accounts and no servers of our o
 - Never copy Liquid Tab's *look*: everything here must look and behave like Samsung's One UI apps on a Galaxy
   phone/tablet. When in doubt, copy Samsung's behaviour, wording and layout.
 - The user writes short, informal English, sometimes with Arabic. **Arabic (RTL) must always work.**
-- Not a git repository yet (ask before `git init`/committing). Commit and push only when the user asks.
+- Repo: `git@github.com:aminalakhsham/Bloom-Tab-Samsung-One-UI-New-Tab-Widgets-Dashboard.git` (branch `main`).
+  Commit and push only when the user asks; `dist/`, `.dev/shots/` and `.dev/node_modules/` are not committed.
 
 ## Ground rules
 
@@ -586,3 +587,9 @@ Still open:
 - `.dev/runall.sh` clears its summary on every call: run it once with a filter, not once per suite in parallel.
 - Several workers editing at once briefly broke boot (a manifest entry or an import before its file existed);
   harmless now, but a release must be packaged from a quiet tree with smoke passing.
+
+## History
+
+| Date | Commit | What |
+| --- | --- | --- |
+| 2026-10-29 | c36f392 | Bloom Tab 1.0.0: first commit — 20 apps, the One UI shell, tests, release kit |
