@@ -1,0 +1,8 @@
+# dev-only and generated
+.dev/node_modules/
+.dev/shots/
+.dev/.chrome.lock*
+.dev/i18n-tmp/
+dist/
+__pycache__/
+.claude/

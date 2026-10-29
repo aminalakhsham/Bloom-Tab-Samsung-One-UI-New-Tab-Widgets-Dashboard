@@ -1,0 +1,1262 @@
+/* One UI app windows ("pop-up view") and shared components */
+
+/* ——— windows: pop-up view, split screen, minimized pop-ups (js/core/apps.js) ——— */
+#app-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+/* The Lock screen has no backdrop of its own: an open app must not show (or take clicks) behind it. */
+body.locked #app-layer {
+  visibility: hidden;
+}
+/* The Apps screen, Finder and the Edge panel belong to the Home screen: they open above the windows floating over it. */
+body.drawer-open #app-layer,
+body.finder-open #app-layer,
+#edge.show ~ #app-layer {
+  z-index: 25;
+}
+
+/* a lone window that was never moved dims the Home screen behind it (clicking the dim closes it) */
+.app-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+  transition: background var(--dur) var(--ease), backdrop-filter var(--dur) var(--ease);
+}
+.app-scrim.show {
+  pointer-events: auto;
+  background: var(--scrim);
+  backdrop-filter: blur(calc(var(--blur) * 0.5));
+}
+/* split screen sits on black, like One UI */
+.app-split-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: #000;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.app-split-bg.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.app-win {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 460px;
+  height: 640px;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-xl);
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.35), 0 0 0 0.5px rgba(255, 255, 255, 0.08) inset;
+  overflow: hidden;
+  outline: none;
+  pointer-events: auto;
+}
+/* several windows (Samsung DeX-like): lighter shadows and a hairline so overlapping windows stay apart */
+.app-win.floating {
+  box-shadow: 0 22px 64px rgba(0, 0, 0, 0.3), 0 2px 10px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.16);
+}
+.app-win.floating:not(.focused) {
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.2), 0 0 0 0.5px rgba(0, 0, 0, 0.14);
+}
+:root[data-theme="dark"] .app-win.floating {
+  box-shadow: 0 22px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+:root[data-theme="dark"] .app-win.floating:not(.focused) {
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+.app-win.morph {
+  transition: left 340ms var(--ease), top 340ms var(--ease), width 340ms var(--ease), height 340ms var(--ease), border-radius 340ms var(--ease);
+}
+.app-win.max {
+  left: 0 !important;
+  top: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0;
+  box-shadow: none;
+}
+.app-win.split {
+  border-radius: var(--r-lg);
+  box-shadow: none;
+}
+.app-win.minimized:not(.minimizing) {
+  visibility: hidden;
+  pointer-events: none;
+}
+.app-win.closing,
+.app-win.minimizing {
+  pointer-events: none;
+}
+.app-win.dragging,
+.app-win.resizing {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* One UI handle bar: drag to move, double-click for full screen; the pop-up options show on hover or a tap */
+.app-handle {
+  position: relative;
+  flex: none;
+  height: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* no z-index here: a stacking context would keep the buttons below the corner resize zones (.app-rz, z 60),
+     which covered the close button and turned a click on it into a resize */
+  cursor: grab;
+  touch-action: none;
+}
+.app-win.dragging .app-handle {
+  cursor: grabbing;
+}
+.app-handle-pill {
+  width: 44px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--text-3);
+  opacity: 0.45;
+  transition: opacity 160ms, width 200ms var(--ease);
+}
+.app-handle:hover .app-handle-pill,
+.app-win.dragging .app-handle-pill {
+  width: 60px;
+  opacity: 0.75;
+}
+.app-win.floating:not(.focused) .app-handle-pill {
+  opacity: 0.22;
+}
+.app-handle-btns {
+  position: absolute;
+  /* 22px keeps the close button fully inside the window's rounded corner (radius --r-xl): nearer the edge its outer
+     corner was clipped, and clicks there went through to the Home screen or into the corner resize zone */
+  inset-inline-end: 22px;
+  top: 3px;
+  z-index: 61; /* above the resize zones: the buttons win where they overlap a corner */
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  cursor: default;
+  transition: opacity 160ms;
+}
+.app-win:hover > .app-handle .app-handle-btns,
+.app-win.btns-on > .app-handle .app-handle-btns,
+.app-handle-btns:focus-within {
+  opacity: 1;
+}
+.app-handle-btn {
+  width: 26px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  color: var(--text-2);
+}
+.app-handle-btn:hover {
+  background: var(--surface-3);
+}
+.app-handle-btn.hb-close:hover {
+  background: #e5484d;
+  color: #fff;
+}
+.hb-alpha {
+  order: 1;
+}
+.hb-split {
+  order: 2;
+}
+.hb-min {
+  order: 3;
+}
+.hb-max {
+  order: 4;
+}
+.hb-close {
+  order: 5;
+}
+.app-win.max .hb-alpha,
+.app-win.split .hb-alpha {
+  display: none;
+}
+
+/* resize from the edges and corners (pop-up windows only) */
+.app-rz {
+  position: absolute;
+  z-index: 60;
+  touch-action: none;
+}
+.app-win.max .app-rz,
+.app-win.split .app-rz {
+  display: none;
+}
+.rz-n,
+.rz-s {
+  left: 26px;
+  right: 26px;
+  height: 5px;
+  cursor: ns-resize;
+}
+.rz-n {
+  top: 0;
+}
+.rz-s {
+  bottom: 0;
+}
+.rz-e,
+.rz-w {
+  top: 26px;
+  bottom: 26px;
+  width: 5px;
+  cursor: ew-resize;
+}
+.rz-e {
+  right: 0;
+}
+.rz-w {
+  left: 0;
+}
+/* the window's rounded corner clips these: the part inside the curve takes the pointer */
+.rz-ne,
+.rz-nw,
+.rz-se,
+.rz-sw {
+  width: 26px;
+  height: 26px;
+}
+.rz-ne {
+  top: 0;
+  right: 0;
+  cursor: nesw-resize;
+}
+.rz-nw {
+  top: 0;
+  left: 0;
+  cursor: nwse-resize;
+}
+.rz-se {
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+}
+.rz-sw {
+  bottom: 0;
+  left: 0;
+  cursor: nesw-resize;
+}
+
+/* where a dragged window will snap: half the screen (split screen) or all of it */
+.app-snap {
+  position: absolute;
+  border-radius: var(--r-lg);
+  background: rgba(var(--accent-rgb), 0.16);
+  box-shadow: inset 0 0 0 2px rgba(var(--accent-rgb), 0.55);
+  backdrop-filter: blur(8px);
+}
+.app-snap[data-where="max"] {
+  border-radius: 0;
+}
+
+/* split screen divider with One UI's handle: drag for the ratio, click for swap / exit / close */
+.app-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  cursor: col-resize;
+  touch-action: none;
+  outline: none;
+}
+.app-divider-handle {
+  width: 6px;
+  height: 64px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  transition: height 200ms var(--ease), background 160ms;
+}
+.app-divider:hover .app-divider-handle,
+.app-divider.dragging .app-divider-handle,
+.app-divider:focus-visible .app-divider-handle {
+  height: 104px;
+  background: #fff;
+}
+
+/* the other half while one window waits in split screen: pick its partner */
+.app-split-picker {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  border-radius: var(--r-lg);
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  animation: app-pick-in 280ms var(--ease);
+}
+@keyframes app-pick-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+.app-pick-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 22px 12px 6px;
+  padding-inline-start: 26px;
+}
+.app-pick-title {
+  flex: 1;
+  font-size: 20px;
+  font-weight: 600;
+}
+.app-pick-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 16px 24px;
+}
+.app-pick-sub {
+  padding: 14px 10px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.app-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 4px;
+}
+.app-pick {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 4px 10px;
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  color: var(--text);
+}
+.app-pick:hover,
+.app-pick:focus-visible {
+  background: rgba(128, 128, 128, 0.12);
+  outline: none;
+}
+.app-pick > span:last-child {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* minimized pop-up: a round floating icon on the screen edge */
+.app-bubble {
+  position: absolute;
+  z-index: 100000;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  pointer-events: auto;
+  background: var(--glass-strong);
+  backdrop-filter: blur(20px) saturate(1.6);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.28), inset 0 0 0 0.5px rgba(255, 255, 255, 0.3);
+  transition: left 280ms var(--ease), top 280ms var(--ease), transform 160ms var(--ease);
+  touch-action: none;
+  animation: app-bubble-in 300ms var(--ease-spring);
+}
+@keyframes app-bubble-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+.app-bubble .app-icon {
+  border-radius: 50%;
+  box-shadow: none;
+}
+.app-bubble:hover {
+  transform: scale(1.06);
+}
+.app-bubble:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.app-bubble.dragging {
+  transition: none;
+  transform: scale(1.1);
+  cursor: grabbing;
+}
+.app-bubble-remove {
+  position: absolute;
+  left: 50%;
+  bottom: 56px;
+  z-index: 99999;
+  width: 68px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(20, 20, 24, 0.55);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  transform: translate(-50%, 24px);
+  transition: opacity 180ms, transform 220ms var(--ease), background 160ms;
+}
+.app-bubble-remove b {
+  position: absolute;
+  top: calc(100% + 8px);
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: rgba(20, 20, 24, 0.6);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.app-bubble-remove.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.app-bubble-remove.hot {
+  background: #e5484d;
+  transform: translate(-50%, 0) scale(1.14);
+}
+
+/* Transparency (One UI pop-up options) */
+.ou-menu.app-alpha-pop {
+  width: 280px;
+  padding: 14px 16px 16px;
+}
+.app-alpha-title {
+  margin: 0 4px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.app-alpha-pop .ou-slider {
+  --slider-h: 44px;
+}
+
+.app-stack {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.app-page {
+  --collapse: 0;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  transition: transform 340ms var(--ease), opacity 340ms var(--ease), filter 340ms var(--ease);
+}
+.app-page.enter {
+  transform: translateX(100%);
+}
+[dir="rtl"] .app-page.enter {
+  transform: translateX(-100%);
+}
+.app-page.behind {
+  transform: translateX(-22%);
+  opacity: 0;
+}
+[dir="rtl"] .app-page.behind {
+  transform: translateX(22%);
+}
+
+.app-toolbar {
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  z-index: 2;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-inline: 16px 10px;
+  background: transparent;
+  transition: background 200ms;
+}
+.app-toolbar.scrolled,
+.app-toolbar.solid {
+  background: var(--bg);
+}
+.app-toolbar:has(.app-back) {
+  padding-inline-start: 6px;
+}
+.app-toolbar-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 19px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 180ms, transform 180ms;
+}
+.app-toolbar.scrolled .app-toolbar-title,
+.app-toolbar.solid .app-toolbar-title {
+  opacity: 1;
+  transform: none;
+}
+.app-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.app-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.app-page.no-hero .app-scroll {
+  padding-top: 56px;
+}
+
+/* One UI: the big title sits in the top third, then content scrolls over it */
+.app-hero {
+  height: clamp(170px, 30vh, 260px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px 12px;
+  opacity: calc(1 - var(--collapse));
+  transform: translateY(calc(var(--collapse) * -14px));
+}
+.app-hero-title {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.app-hero-sub {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--text-2);
+}
+.app-hero-sub:empty {
+  display: none;
+}
+
+.app-body {
+  padding: 4px 14px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.app-body.flush {
+  padding: 0;
+}
+.app-error {
+  padding: 80px 24px;
+  color: #e5484d;
+  font-family: ui-monospace, monospace;
+  white-space: pre-wrap;
+}
+
+/* ——— cards & lists ——— */
+.ou-card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+}
+.ou-list {
+  padding: 6px 0;
+}
+.ou-subheader {
+  margin: 10px 22px -4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.ou-row {
+  position: relative;
+  width: 100%;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 18px;
+  text-align: start;
+  color: var(--text);
+}
+.ou-list > .ou-row + .ou-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  inset-inline: 18px;
+  height: 1px;
+  background: var(--divider);
+}
+.ou-list > .ou-row:has(.ou-row-ico) + .ou-row:has(.ou-row-ico)::before {
+  inset-inline-start: 66px;
+}
+.ou-row.clickable {
+  cursor: pointer;
+}
+.ou-row.clickable:hover {
+  background: rgba(128, 128, 128, 0.07);
+}
+.ou-row.clickable:active {
+  background: rgba(128, 128, 128, 0.14);
+}
+.ou-list > .ou-row:first-child {
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+.ou-list > .ou-row:last-child {
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+.ou-list > .ou-row:only-child {
+  border-radius: var(--r-lg);
+}
+.ou-row-ico {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.ou-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ou-row-title {
+  font-size: 16px;
+  line-height: 1.3;
+}
+.ou-row-sub {
+  font-size: 13px;
+  color: var(--accent);
+  line-height: 1.3;
+}
+.ou-row-sub.muted,
+.ou-row.muted-sub .ou-row-sub {
+  color: var(--text-2);
+}
+.ou-row-chev {
+  color: var(--text-3);
+}
+/* Directional chevrons mirror in Arabic once, on the icon itself (icons.js gives every svg its ico-<name> class).
+   Don't flip a box around one as well: two flips cancel out (row chevrons pointed the wrong way that way). */
+[dir="rtl"] .ico-forward,
+[dir="rtl"] .ico-back {
+  transform: scaleX(-1);
+}
+
+/* ——— switch (One UI) ——— */
+.ou-switch {
+  position: relative;
+  flex: none;
+  display: inline-block;
+  width: 44px;
+  height: 26px;
+  cursor: pointer;
+}
+.ou-switch input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.ou-switch-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 13px;
+  background: var(--surface-3);
+  box-shadow: inset 0 0 0 1.5px rgba(128, 128, 128, 0.35);
+  transition: background 200ms;
+}
+.ou-switch-thumb {
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 260ms var(--ease-spring);
+}
+.ou-switch input:checked + .ou-switch-track {
+  background: var(--accent);
+  box-shadow: none;
+}
+.ou-switch input:checked + .ou-switch-track .ou-switch-thumb {
+  transform: translateX(18px);
+}
+[dir="rtl"] .ou-switch input:checked + .ou-switch-track .ou-switch-thumb {
+  transform: translateX(-18px);
+}
+.ou-switch input:focus-visible + .ou-switch-track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ——— buttons ——— */
+.ou-btn {
+  min-height: 42px;
+  padding: 0 20px;
+  border-radius: var(--r-pill);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 150ms, transform 120ms;
+}
+.ou-btn:hover {
+  background: var(--accent-soft);
+}
+.ou-btn:active {
+  transform: scale(0.97);
+}
+.ou-btn.primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.ou-btn.primary:hover {
+  filter: brightness(1.06);
+}
+.ou-btn.tonal {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.ou-btn.danger {
+  color: #e5484d;
+}
+.ou-btn:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.ou-icon-btn {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text);
+  transition: background 150ms;
+}
+.ou-icon-btn:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+.ou-icon-btn:active {
+  background: rgba(128, 128, 128, 0.2);
+}
+.ou-icon-btn.active {
+  color: var(--accent);
+}
+
+.ou-fab {
+  position: absolute;
+  inset-inline-end: 22px;
+  bottom: 22px;
+  z-index: 4;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.4);
+  transition: transform 200ms var(--ease-spring);
+}
+.ou-fab:hover {
+  transform: scale(1.05);
+}
+.ou-fab:active {
+  transform: scale(0.95);
+}
+
+/* floating bottom navigation (One UI 8.5+) */
+.ou-tabs {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  gap: 2px;
+  padding: 5px;
+  border-radius: var(--r-pill);
+  background: var(--glass-strong);
+  backdrop-filter: blur(24px) saturate(1.6);
+  box-shadow: var(--shadow);
+}
+.ou-tab {
+  min-width: 70px;
+  height: 52px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  transition: background 200ms, color 200ms;
+}
+.ou-tab.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ——— segmented ——— */
+.ou-seg {
+  display: flex;
+  padding: 4px;
+  gap: 2px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+}
+.ou-seg-btn {
+  flex: 1;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+  white-space: nowrap;
+  transition: background 200ms, color 200ms;
+}
+.ou-seg-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ——— inputs ——— */
+.ou-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  resize: vertical;
+  transition: box-shadow 150ms;
+}
+.ou-input:focus {
+  box-shadow: 0 0 0 2px var(--accent) inset;
+}
+.ou-input::placeholder {
+  color: var(--text-3);
+}
+select.ou-input {
+  appearance: none;
+  cursor: pointer;
+}
+
+.ou-searchbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--text-2);
+}
+.ou-searchbox input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  font-size: 16px;
+  color: var(--text);
+}
+
+/* ——— slider (One UI 9: thick, icon inside fill) ——— */
+.ou-slider {
+  --slider-h: 56px;
+  position: relative;
+  height: var(--slider-h);
+  border-radius: calc(var(--slider-h) / 2);
+  background: var(--glass-tile-off, var(--surface-3));
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+.ou-slider-fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  border-radius: calc(var(--slider-h) / 2);
+  background: var(--accent);
+  transition: width 120ms var(--ease);
+}
+.ou-slider.dragging .ou-slider-fill {
+  transition: none;
+}
+.ou-slider-ico {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: calc(var(--slider-h) / 2 - 11px);
+  transform: translateY(-50%);
+  color: #fff;
+  pointer-events: none;
+}
+.ou-slider:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ——— swatches ——— */
+.ou-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.ou-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  transition: transform 160ms var(--ease-spring);
+}
+.ou-swatch:hover {
+  transform: scale(1.1);
+}
+.ou-swatch.active {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+}
+
+/* ——— chips ——— */
+.ou-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px;
+}
+.ou-chip {
+  flex: none;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--divider);
+}
+.ou-chip.active {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: none;
+}
+
+.ou-empty {
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.ou-empty svg {
+  width: 56px;
+  height: 56px;
+  opacity: 0.6;
+}
+
+/* ——— overlays: menu, dialog, toast ——— */
+#overlay-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+#overlay-layer > * {
+  pointer-events: auto;
+}
+
+.ou-menu-scrim {
+  position: fixed;
+  inset: 0;
+}
+.ou-menu {
+  position: fixed;
+  min-width: 210px;
+  max-width: 300px;
+  padding: 8px 0;
+  border-radius: var(--r-md);
+  background: var(--glass-strong);
+  color: var(--text);
+  backdrop-filter: blur(30px) saturate(1.8);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 140ms var(--ease), transform 200ms var(--ease);
+}
+.ou-menu.show {
+  opacity: 1;
+  transform: none;
+}
+.ou-menu-item {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: start;
+  font-size: 15.5px;
+}
+.ou-menu-item:hover,
+.ou-menu-item:focus-visible {
+  background: rgba(128, 128, 128, 0.12);
+  outline: none;
+}
+.ou-menu-item:disabled {
+  opacity: 0.4;
+}
+.ou-menu-item.danger {
+  color: #e5484d;
+}
+.ou-menu-ico {
+  color: var(--text-2);
+}
+.ou-menu-item.danger .ou-menu-ico {
+  color: inherit;
+}
+.ou-menu-label {
+  flex: 1;
+}
+.ou-menu-check {
+  color: var(--accent);
+}
+.ou-menu-div {
+  height: 1px;
+  margin: 6px 16px;
+  background: var(--divider);
+}
+
+.ou-dialog-scrim {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0);
+  transition: background 200ms;
+}
+.ou-dialog-scrim.show {
+  background: rgba(0, 0, 0, 0.36);
+}
+.ou-dialog {
+  width: min(420px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding: 26px 24px 16px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(30px) scale(0.96);
+  transition: opacity 200ms var(--ease), transform 300ms var(--ease);
+}
+.ou-dialog.wide {
+  width: min(560px, 100%);
+}
+.ou-dialog-scrim.show .ou-dialog {
+  opacity: 1;
+  transform: none;
+}
+.ou-dialog-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.ou-dialog-msg {
+  font-size: 15.5px;
+  line-height: 1.5;
+  color: var(--text-2);
+  margin-bottom: 8px;
+  white-space: pre-line;
+}
+.ou-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 6px 0 4px;
+}
+.ou-dialog-actions {
+  display: flex;
+  margin: 18px -8px 0;
+}
+.ou-dialog-btn {
+  flex: 1;
+  min-height: 46px;
+  border-radius: var(--r-pill);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+.ou-dialog-btn + .ou-dialog-btn {
+  border-inline-start: 1px solid var(--divider);
+  /* logical corners: the divider side is square, the outer side stays round (mirrored in Arabic) */
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+.ou-dialog-btn:hover {
+  background: rgba(128, 128, 128, 0.1);
+}
+.ou-dialog-btn.primary {
+  color: var(--accent);
+}
+.ou-dialog-btn.danger {
+  color: #e5484d;
+}
+
+.ou-radio-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0 -10px;
+}
+/* choose(): the dialog is a column whose radio list alone scrolls, so the buttons never scroll away */
+.ou-dialog.ou-choose {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ou-choose > .ou-dialog-title,
+.ou-choose > .ou-dialog-actions {
+  flex: none;
+}
+.ou-choose > .ou-radio-list {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.ou-radio-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 50px;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.ou-radio-row:hover {
+  background: rgba(128, 128, 128, 0.08);
+}
+.ou-radio-row input {
+  position: absolute;
+  opacity: 0;
+}
+.ou-radio {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--text-3);
+  transition: box-shadow 160ms;
+}
+.ou-radio-row input:checked + .ou-radio {
+  box-shadow: inset 0 0 0 6.5px var(--accent);
+}
+.ou-radio-row input:focus-visible + .ou-radio {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.ou-radio-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+}
+.ou-radio-text small {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.ou-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 64px;
+  transform: translate(-50%, 20px);
+  max-width: min(560px, calc(100vw - 32px));
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 13px 22px;
+  border-radius: var(--r-pill);
+  background: rgba(40, 40, 44, 0.92);
+  color: #fff;
+  font-size: 14.5px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 200ms, transform 300ms var(--ease);
+}
+/* like Android toasts, taps go through to what's underneath (e.g. the Calculator's 0 key); only the action takes them */
+#overlay-layer > .ou-toast {
+  pointer-events: none;
+}
+.ou-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.ou-toast-action {
+  color: #7fb0ff;
+  font-weight: 700;
+  pointer-events: auto;
+}

@@ -1,0 +1,38 @@
+{
+  "extName": {
+    "message": "Bloom Tab: تبويب جديد بنمط Samsung One UI مع أدوات ولوحة معلومات"
+  },
+  "extShortName": {
+    "message": "Bloom Tab"
+  },
+  "extDescription": {
+    "message": "صفحة تبويب جديد بنمط Samsung One UI: شاشة رئيسية مثل Galaxy، وأدوات، وشاشة قفل، وملاحظات، وطقس، وساعة، و20 تطبيقًا. خاص ومجاني."
+  },
+  "cmdAddToHome": {
+    "message": "إضافة الصفحة الحالية إلى الشاشة الرئيسية"
+  },
+  "ctxAddToHome": {
+    "message": "إضافة إلى الشاشة الرئيسية"
+  },
+  "ctxAddToEdge": {
+    "message": "إضافة إلى لوحة الحافة"
+  },
+  "actionTitle": {
+    "message": "إضافة إلى الشاشة الرئيسية (انقر بزر الماوس الأيمن للتدوين السريع واللوحة الجانبية)"
+  },
+  "cmdQuickCapture": {
+    "message": "تدوين سريع من الصفحة الحالية"
+  },
+  "cmdSidePanel": {
+    "message": "فتح اللوحة الجانبية لـ Bloom Tab"
+  },
+  "ctxAddLink": {
+    "message": "إضافة الرابط إلى الشاشة الرئيسية"
+  },
+  "ctxCapture": {
+    "message": "تدوين سريع"
+  },
+  "ctxSidePanel": {
+    "message": "فتح اللوحة الجانبية"
+  }
+}

@@ -1,0 +1,365 @@
+/* Sheets shown over any website (addsite.html, capture.html; see js/bg/anytab.js): One UI dialogs anchored at the
+   bottom of the screen, on a transparent frame over the page, or filling a small pop-up window of their own. */
+html,
+body.at-body {
+  background: transparent;
+}
+html.at-window,
+html.at-window body {
+  background: var(--surface);
+}
+
+/* One UI puts dialogs at the bottom of the screen, within thumb reach */
+.ou-dialog-scrim:has(.at-sheet) {
+  place-items: end center;
+  padding: 16px 16px 28px;
+}
+.ou-dialog.at-sheet {
+  width: min(480px, 100%);
+  max-height: calc(100vh - 44px);
+  padding: 24px 22px 12px;
+}
+.at-sheet .ou-dialog-title {
+  margin-bottom: 16px;
+}
+.at-sheet .ou-dialog-btn:disabled {
+  opacity: 0.38;
+  pointer-events: none;
+}
+/* alone in a window: the sheet is the window */
+html.at-window .ou-dialog-scrim:has(.at-sheet),
+html.at-window .ou-dialog-scrim.show:has(.at-sheet) {
+  padding: 0;
+  place-items: stretch;
+  background: none;
+}
+html.at-window .ou-dialog.at-sheet {
+  width: 100%;
+  /* a wide window keeps the sheet's column at a readable width */
+  padding-inline: max(22px, calc((100vw - 560px) / 2));
+  height: 100vh;
+  max-height: none;
+  border-radius: 0;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  transform: none;
+}
+html.at-window .at-sheet .ou-dialog-actions {
+  margin-top: auto;
+}
+html.at-window .ou-toast {
+  bottom: 84px;
+}
+
+/* ——— Add to Home screen ——— */
+.at-site {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 2px 2px 20px;
+}
+.at-icon {
+  --icon: 60px;
+  flex: none;
+  width: 60px;
+  height: 60px;
+}
+.at-fields {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+/* One UI edit text: a line under the text that takes the accent colour while typing */
+.at-name,
+.at-url-in {
+  width: 100%;
+  height: 38px;
+  padding: 0 2px;
+  border: 0;
+  border-bottom: 1.5px solid rgba(128, 128, 128, 0.42);
+  border-radius: 0;
+  background: none;
+  color: var(--text);
+  font-size: 17px;
+  outline: none;
+  unicode-bidi: plaintext;
+  text-align: start;
+  transition: border-color 150ms;
+}
+.at-url-in {
+  font-size: 15px;
+}
+.at-name:focus,
+.at-url-in:focus {
+  border-bottom-color: var(--accent);
+}
+.at-name::placeholder,
+.at-url-in::placeholder {
+  color: var(--text-3);
+}
+.at-url {
+  display: block;
+  padding: 0 2px;
+  font-size: 13px;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+.at-label {
+  margin: 0 6px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.at-where {
+  margin-bottom: 14px;
+}
+.at-where .ou-seg-btn.active {
+  color: var(--accent);
+}
+.at-sheet .ou-list {
+  padding: 0;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.at-sheet .ou-list > .ou-row:only-child {
+  border-radius: var(--r-md);
+}
+.at-webapp {
+  min-height: 66px;
+  padding-inline: 16px;
+}
+.at-foot {
+  margin: 12px 6px 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+/* ——— Quick capture ——— */
+.at-modes {
+  margin-bottom: 14px;
+}
+.at-modes .ou-seg-btn {
+  padding: 0 8px;
+}
+.at-card {
+  margin-bottom: 12px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.at-text {
+  display: block;
+  width: 100%;
+  min-height: 60px;
+  padding: 14px 16px;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.45;
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+.at-text::placeholder {
+  color: var(--text-3);
+}
+.at-parse {
+  padding: 0 14px 14px;
+}
+
+/* how a reminder was read: its title and when it goes off */
+.at-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.at-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+.at-chip > span {
+  flex: none;
+  display: grid;
+}
+.at-chip bdi {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.at-chip.title {
+  background: var(--surface-3);
+  color: var(--text);
+  font-weight: 500;
+}
+.at-chip.muted {
+  background: var(--surface-3);
+  color: var(--text-2);
+}
+
+/* a log: what will be saved, in its app's colour */
+.at-log {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 2px 0;
+}
+.at-log-ico {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.at-log-t {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.at-log-t b {
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.at-log-t small {
+  font-size: 13px;
+  color: var(--text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.at-log.off .at-log-ico {
+  opacity: 0.5;
+}
+.at-try {
+  padding: 0 2px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+.at-moods {
+  display: flex;
+  gap: 4px;
+  margin-top: 12px;
+}
+.at-mood {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 2px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.at-mood:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+.at-mood-dot {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--mc);
+  color: #fff;
+}
+
+/* the page as a link card, like a web link in Samsung Notes */
+.at-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  cursor: pointer;
+}
+.at-fav {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+.at-fav img {
+  width: 20px;
+  height: 20px;
+}
+.at-link-t {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.at-link-title,
+.at-link-url {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+.at-link-title {
+  font-size: 15px;
+}
+.at-link-url {
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+.at-cap-foot {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 20px;
+  padding: 2px 6px 0;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+.at-cap-note {
+  flex: 1;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.4;
+}
+.at-cap-note > span:first-child {
+  flex: none;
+  margin-top: 1px;
+}
+.at-keys {
+  margin-inline-start: auto;
+  white-space: nowrap;
+}

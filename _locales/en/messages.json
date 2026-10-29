@@ -1,0 +1,38 @@
+{
+  "extName": {
+    "message": "Bloom Tab: Samsung One UI New Tab, Widgets & Dashboard"
+  },
+  "extShortName": {
+    "message": "Bloom Tab"
+  },
+  "extDescription": {
+    "message": "Samsung One UI style new tab page: Galaxy-like home screen, widgets, lock screen, notes, weather, clock and 20 apps. Private, free."
+  },
+  "cmdAddToHome": {
+    "message": "Add the current page to the Home screen"
+  },
+  "ctxAddToHome": {
+    "message": "Add to Home screen"
+  },
+  "ctxAddToEdge": {
+    "message": "Add to Edge panel"
+  },
+  "actionTitle": {
+    "message": "Add to Home screen (right-click for Quick capture and the side panel)"
+  },
+  "cmdQuickCapture": {
+    "message": "Quick capture from the current page"
+  },
+  "cmdSidePanel": {
+    "message": "Open the Bloom Tab side panel"
+  },
+  "ctxAddLink": {
+    "message": "Add link to Home screen"
+  },
+  "ctxCapture": {
+    "message": "Quick capture"
+  },
+  "ctxSidePanel": {
+    "message": "Open side panel"
+  }
+}

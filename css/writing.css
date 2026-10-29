@@ -1,0 +1,495 @@
+/* Writing assist (Galaxy AI) — js/shell/writing.js */
+.wa-panel {
+  --wa-grad: linear-gradient(135deg, #7b5cff 0%, #3d8bff 52%, #1fc7d4 100%);
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 14px 12px;
+  overflow-y: auto;
+  border-radius: 26px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22), 0 0 0 1px var(--divider);
+  animation: wa-in 200ms var(--ease);
+}
+:root[data-theme="dark"] .wa-panel {
+  background: var(--surface-2);
+}
+.wa-panel.closing {
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 160ms, transform 160ms;
+}
+@keyframes wa-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+.wa-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+}
+.wa-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--wa-grad);
+  flex: none;
+}
+.wa-logo svg {
+  width: 18px;
+  height: 18px;
+}
+.wa-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  unicode-bidi: plaintext;
+}
+.wa-scope {
+  flex: none;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+.wa-scope:empty {
+  display: none;
+}
+.wa-ib {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  color: var(--text-2);
+}
+.wa-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.wa-tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: var(--surface-2);
+  text-align: start;
+  color: var(--text);
+  transition: background 150ms;
+}
+:root[data-theme="dark"] .wa-tile {
+  background: var(--surface-3);
+}
+.wa-tile:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface-2));
+}
+.wa-tile:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+.wa-tile:disabled {
+  opacity: 0.5;
+}
+.wa-tile-ico {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--wa-grad);
+}
+.wa-tile.off .wa-tile-ico {
+  background: var(--text-3);
+}
+.wa-tile-t {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.wa-tile-t b {
+  font-size: 15px;
+  font-weight: 600;
+}
+.wa-tile-t small {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.3;
+}
+.wa-ask {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 6px 0 14px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1.5px transparent;
+  color: var(--accent);
+}
+:root[data-theme="dark"] .wa-ask {
+  background: var(--surface-3);
+}
+.wa-ask:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+.wa-ask input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  font: inherit;
+  font-size: 15px;
+  color: var(--text);
+}
+.wa-send {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+}
+.wa-send:disabled {
+  background: color-mix(in srgb, var(--text) 14%, transparent);
+  color: var(--text-3);
+}
+.wa-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 2px 0;
+}
+.wa-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  font-size: 14px;
+  color: var(--text);
+}
+:root[data-theme="dark"] .wa-chip {
+  background: var(--surface-3);
+}
+.wa-chip.on {
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+  font-weight: 600;
+}
+.wa-card {
+  position: relative;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--surface-2);
+  font-size: 15px;
+  line-height: 1.55;
+}
+:root[data-theme="dark"] .wa-card {
+  background: var(--surface-3);
+}
+/* the AI result card: Galaxy AI's gradient edge */
+.wa-res {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1.5px solid transparent;
+  background: linear-gradient(var(--surface-2), var(--surface-2)) padding-box, var(--wa-grad) border-box;
+  unicode-bidi: plaintext;
+  outline: none;
+}
+:root[data-theme="dark"] .wa-res {
+  background: linear-gradient(var(--surface-3), var(--surface-3)) padding-box, var(--wa-grad) border-box;
+}
+.wa-res ul,
+.wa-res ol {
+  margin: 2px 0;
+  padding-inline-start: 22px;
+}
+.wa-res h3 {
+  margin: 6px 0 2px;
+  font-size: 15px;
+}
+.wa-res table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+.wa-res td {
+  border: 1px solid var(--divider);
+  padding: 4px 8px;
+}
+.wa-err {
+  display: flex;
+  gap: 10px;
+  color: var(--text-2);
+}
+.wa-busy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wa-shimmer {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 16%, transparent) 0%, color-mix(in srgb, #1fc7d4 34%, transparent) 50%, color-mix(in srgb, var(--accent) 16%, transparent) 100%) 0 0 / 200% 100%;
+  animation: wa-shine 1.4s linear infinite;
+}
+.wa-shimmer.short {
+  width: 60%;
+}
+:root[data-motion="reduce"] .wa-shimmer {
+  animation: none;
+}
+@keyframes wa-shine {
+  to {
+    background-position: -200% 0;
+  }
+}
+.wa-busy-t {
+  font-size: 13px;
+  color: var(--text-2);
+}
+.wa-acts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wa-acts .ou-btn {
+  height: 38px;
+  padding: 0 16px;
+}
+.wa-undo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.wa-again {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  color: var(--accent);
+}
+.wa-again:hover {
+  background: var(--accent-soft);
+}
+.wa-foot {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-3);
+  text-align: center;
+}
+.wa-wait {
+  display: grid;
+  place-items: center;
+  height: 120px;
+}
+.wa-orb {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--wa-grad);
+  animation: wa-pulse 1s ease-in-out infinite alternate;
+}
+@keyframes wa-pulse {
+  to {
+    transform: scale(0.75);
+    opacity: 0.6;
+  }
+}
+.wa-na {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 8px 6px;
+  text-align: center;
+}
+.wa-na-x {
+  position: absolute;
+  top: -4px;
+  inset-inline-end: -4px;
+}
+.wa-illo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--wa-grad);
+}
+.wa-na h3 {
+  margin: 4px 0 0;
+  font-size: 18px;
+}
+.wa-na p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.wa-prog {
+  width: 80%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.wa-prog i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--wa-grad);
+  transition: width 200ms;
+}
+.wa-prog-t {
+  font-size: 13px;
+  color: var(--text-2);
+}
+/* Proofread review */
+.wa-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.wa-count {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+}
+.wa-ctx {
+  margin: 0 0 10px;
+  unicode-bidi: plaintext;
+}
+.wa-ctx del {
+  color: #d64545;
+  text-decoration-thickness: 1.5px;
+}
+.wa-ctx ins {
+  text-decoration: none;
+  color: #1a8d4a;
+  font-weight: 600;
+  background: color-mix(in srgb, #2fb36b 16%, transparent);
+  border-radius: 4px;
+  padding: 0 2px;
+}
+:root[data-theme="dark"] .wa-ctx del {
+  color: #ff8080;
+}
+:root[data-theme="dark"] .wa-ctx ins {
+  color: #6fe3a0;
+}
+.wa-fix-acts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wa-fix-acts .ou-btn {
+  height: 36px;
+  padding: 0 14px;
+}
+.wa-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.wa-none {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1a8d4a;
+}
+:root[data-theme="dark"] .wa-none {
+  color: #6fe3a0;
+}
+.wa-none b {
+  color: var(--text);
+  font-weight: 600;
+}
+/* in the text: what a tool works on, the corrections */
+::highlight(wa-scope) {
+  background-color: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+::highlight(wa-busy) {
+  background-color: color-mix(in srgb, #1fc7d4 22%, transparent);
+}
+::highlight(wa-proof) {
+  text-decoration: underline 2px color-mix(in srgb, #2fb36b 80%, transparent);
+  text-underline-offset: 3px;
+}
+::highlight(wa-proof-cur) {
+  background-color: color-mix(in srgb, #2fb36b 20%, transparent);
+  text-decoration: underline 2px #2fb36b;
+  text-underline-offset: 3px;
+}
+.wa-glow {
+  box-shadow: 0 0 0 2px color-mix(in srgb, #1fc7d4 60%, transparent) !important;
+}
+.wa-mirror {
+  position: fixed;
+  pointer-events: none;
+  color: transparent;
+  overflow: hidden;
+  border-color: transparent;
+  border-style: solid;
+  box-sizing: border-box;
+}
+.wa-mirror mark {
+  color: transparent;
+  background: none;
+  text-decoration: underline 2px #2fb36b;
+  text-underline-offset: 3px;
+}
+.wa-mirror mark.cur {
+  background: color-mix(in srgb, #2fb36b 20%, transparent);
+}
+/* the button on a focused plain field */
+.wa-fab {
+  position: fixed;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(135deg, #7b5cff 0%, #3d8bff 52%, #1fc7d4 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.wa-fab[hidden] {
+  display: none;
+}
+.wa-fab svg {
+  width: 15px;
+  height: 15px;
+}
+.wa-barbtn {
+  color: var(--accent);
+}

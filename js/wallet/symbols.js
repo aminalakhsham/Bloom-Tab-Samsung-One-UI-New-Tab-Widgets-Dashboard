@@ -1,0 +1,41 @@
+// Glyphs Samsung Wallet needs that the shared set in core/icons.js doesn't have (24px grid, 1.8 stroke, round caps,
+// like the rest). Prefixed "wl-" so they never replace another app's icon of the same name. Imported by the app's
+// registration (widgets, Finder) and its UI, so they exist before either draws.
+import { addIcons } from '../core/icons.js';
+
+const F = 'fill="currentColor" stroke="none"';
+addIcons({
+  'wl-wallet': '<path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><path d="M4 9.5h11.5a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H4"/><circle cx="15" cy="12" r="1" fill="currentColor"/>',
+  'wl-ticket': '<path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h14a1.5 1.5 0 0 1 1.5 1.5V10a2 2 0 0 0 0 4v2.5A1.5 1.5 0 0 1 19 18H5a1.5 1.5 0 0 1-1.5-1.5V14a2 2 0 0 0 0-4z"/><path d="M14.5 6.5v2M14.5 11v2M14.5 15.5v2"/>',
+  'wl-member': '<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2"/><path d="M5.8 16c.5-1.6 1.7-2.4 3.2-2.4s2.7.8 3.2 2.4M14.5 10h3.5M14.5 13.5h3.5"/>',
+  'wl-id': '<rect x="4" y="3" width="16" height="18" rx="2.5"/><circle cx="12" cy="10" r="2.6"/><path d="M8 17c.7-1.9 2.1-2.9 4-2.9s3.3 1 4 2.9M10 3v2h4V3"/>',
+  'wl-coupon': '<path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h14a1.5 1.5 0 0 1 1.5 1.5V10a2 2 0 0 0 0 4v2.5A1.5 1.5 0 0 1 19 18H5a1.5 1.5 0 0 1-1.5-1.5V14a2 2 0 0 0 0-4z"/><path d="m9.5 14.5 5-5"/><circle cx="9.6" cy="9.6" r=".9" fill="currentColor"/><circle cx="14.4" cy="14.4" r=".9" fill="currentColor"/>',
+  'wl-gift': '<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M3.5 9h17v3h-17zM12 9v11M12 9c-1-2.8-4.6-4-5.4-2.1C5.9 8.6 9 9 12 9c3 0 6.1-.4 5.4-2.1C16.6 5 13 6.2 12 9z"/>',
+  'wl-key': '<circle cx="8" cy="15" r="4"/><path d="m11 12 8.5-8.5M16.5 6.5l2 2M14.5 8.5l1.5 1.5"/>',
+  'wl-pass': '<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8 7.5h5M8 11h8"/><rect x="8" y="14" width="8" height="4" rx=".8"/>',
+  'wl-card': '<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M6.5 15h4"/>',
+  'wl-food': '<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M16.5 21V3c-2 1-3.5 3.5-3.5 7v3h3.5"/>',
+  'wl-bag': '<path d="M5 8h14l-1 12H6z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/>',
+  'wl-car': '<path d="M5 16.5v2M19 16.5v2M3.5 12.5l2-5A2 2 0 0 1 7.4 6h9.2a2 2 0 0 1 1.9 1.5l2 5v4h-17z"/><path d="M3.5 12.5h17"/><circle cx="7.5" cy="14.5" r=".9" fill="currentColor"/><circle cx="16.5" cy="14.5" r=".9" fill="currentColor"/>',
+  'wl-heart': '<path d="M12 20s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.3 4.3 4.3 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10z"/>',
+  'wl-wrench': '<path d="M14.7 6.3a4 4 0 0 0 5 5L21 10a5.5 5.5 0 0 1-7.2 5.6l-6.4 6.3a2 2 0 0 1-2.8-2.8l6.3-6.4A5.5 5.5 0 0 1 16.5 5.4z"/>',
+  'wl-dots': `<circle cx="6" cy="12" r="1.5" ${F}/><circle cx="12" cy="12" r="1.5" ${F}/><circle cx="18" cy="12" r="1.5" ${F}/>`,
+  'wl-tv': '<rect x="3" y="5.5" width="18" height="12" rx="2.5"/><path d="M8.5 21h7M12 17.5V21"/>',
+  'wl-book': '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
+  'wl-game': '<path d="M7 7.5h10a4 4 0 0 1 4 4.4l-.4 3.6a2.5 2.5 0 0 1-4.3 1.4L14.6 15H9.4l-1.7 1.9a2.5 2.5 0 0 1-4.3-1.4L3 11.9a4 4 0 0 1 4-4.4z"/><path d="M8 10.5v3M6.5 12h3"/><circle cx="15.5" cy="11" r=".9" fill="currentColor"/><circle cx="17" cy="13" r=".9" fill="currentColor"/>',
+  'wl-bolt': '<path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/>',
+  'wl-shield': '<path d="M12 3 5 6v5.5c0 4.4 3 7.8 7 9.5 4-1.7 7-5.1 7-9.5V6z"/><path d="m9 12 2 2 4-4"/>',
+  'wl-train': '<rect x="6" y="3.5" width="12" height="14" rx="3"/><path d="M6 11h12M9.5 21l1.5-3.5M14.5 21 13 17.5"/><circle cx="9" cy="14.3" r=".9" fill="currentColor"/><circle cx="15" cy="14.3" r=".9" fill="currentColor"/>',
+  'wl-bus': '<rect x="4.5" y="3.5" width="15" height="15" rx="3"/><path d="M4.5 11.5h15M7.5 18.5V21M16.5 18.5V21M4.5 7.5h15"/><circle cx="8" cy="15" r=".9" fill="currentColor"/><circle cx="16" cy="15" r=".9" fill="currentColor"/>',
+  'wl-boat': '<path d="M3 15.5 5 20h14l2-4.5zM6 15.5V10h12v5.5M12 10V4M9 7h6"/>',
+  'wl-qr': `<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><g ${F}><rect x="14" y="14" width="2.2" height="2.2"/><rect x="17.8" y="14" width="2.2" height="2.2"/><rect x="15.9" y="15.9" width="2.2" height="2.2"/><rect x="14" y="17.8" width="2.2" height="2.2"/><rect x="17.8" y="17.8" width="2.2" height="2.2"/></g>`,
+  'wl-scan': '<path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16M7.5 9v6M10 9v6M13 9v6M16.5 9v6"/>',
+  'wl-repeat': '<path d="M4 11V9.5A3.5 3.5 0 0 1 7.5 6H20M17 3l3 3-3 3M20 13v1.5a3.5 3.5 0 0 1-3.5 3.5H4M7 21l-3-3 3-3"/>',
+  'wl-receipt': '<path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/>',
+  'wl-chart': '<path d="M4 20h16"/><rect x="5.5" y="11" width="3" height="6" rx="1"/><rect x="10.5" y="6" width="3" height="11" rx="1"/><rect x="15.5" y="13" width="3" height="4" rx="1"/>',
+  'wl-gauge': '<path d="M4.5 16a8 8 0 1 1 15 0"/><path d="m12 13 3.5-4"/><circle cx="12" cy="13.5" r="1.3" fill="currentColor"/>',
+  'wl-sun': `<circle cx="12" cy="12" r="4.2" ${F}/><path d="M12 1.8v2.6M12 19.6v2.6M1.8 12h2.6M19.6 12h2.6M4.8 4.8l1.8 1.8M17.4 17.4l1.8 1.8M4.8 19.2l1.8-1.8M17.4 6.6l1.8-1.8"/>`,
+  'wl-quick': '<rect x="5" y="9" width="14" height="11" rx="2.5"/><path d="M6.5 6.5h11M8.5 4h7"/>',
+  'wl-photo': '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-4.5 4 3.5 2.5-2 4.5 3.5"/>',
+  'wl-pie': '<path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12z"/><path d="M15 3.8A8.5 8.5 0 0 1 20.2 9H15z"/>',
+});

@@ -1,0 +1,2125 @@
+/* Samsung Weather: full-bleed animated skies, glass cards in white over them, detail pages, Manage locations,
+   and the Weather / Weather forecast widgets. Sky layers move with transform/opacity only. */
+
+/* ——— pages over the sky ——— */
+.wx-page,
+.wx-dpage {
+  background: var(--wx-top, #2a72d6);
+  color: #fff;
+  overflow: hidden;
+}
+.wx-skyhost,
+.wx-dsky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+/* the sky dims as the page scrolls under the toolbar (and a little in dark mode); the sun and Moon fade away */
+.wx-skyhost::after,
+html[data-theme="dark"] .wx-pc-sky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(4 12 30 / calc(var(--wx-s, 0) * 0.28 + var(--wx-dark, 0)));
+  pointer-events: none;
+}
+html[data-theme="dark"] .wx-skyhost,
+html[data-theme="dark"] .wx-pc-sky {
+  --wx-dark: 0.18;
+}
+.wx-skyhost .wxk-sun,
+.wx-skyhost .wxk-moon {
+  opacity: calc(1 - var(--wx-s, 0));
+}
+.wx-dsky .wxk-sun,
+.wx-dsky .wxk-moon {
+  display: none;
+}
+.wx-dpage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(rgba(6, 12, 28, 0.38), rgba(6, 12, 28, 0.5));
+  pointer-events: none;
+}
+.wx-page .app-scroll,
+.wx-dpage .app-scroll {
+  position: relative;
+  z-index: 1;
+  container-type: inline-size;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  touch-action: pan-y;
+}
+.wx-page .app-toolbar,
+.wx-page .app-toolbar.solid,
+.wx-dpage .app-toolbar,
+.wx-dpage .app-toolbar.solid {
+  background: transparent;
+  color: #fff;
+  z-index: 3;
+  transition: background 250ms, backdrop-filter 250ms;
+}
+.wx-mainpage .app-toolbar {
+  padding-inline-start: 6px;
+}
+.wx-page .app-toolbar .ou-icon-btn,
+.wx-dpage .app-toolbar .ou-icon-btn {
+  color: #fff;
+}
+.wx-page .app-toolbar .ou-icon-btn svg {
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+}
+.wx-page .app-toolbar .ou-icon-btn:hover,
+.wx-dpage .app-toolbar .ou-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+.wx-page .app-toolbar.solid .app-toolbar-title {
+  opacity: 0;
+}
+.wx-page .app-toolbar.wx-scrolled,
+.wx-dpage .app-toolbar {
+  background: rgba(10, 20, 40, 0.2);
+  backdrop-filter: blur(20px);
+}
+.wx-page .app-toolbar.solid.wx-scrolled .app-toolbar-title,
+.wx-prev .app-toolbar.solid .app-toolbar-title {
+  opacity: 1;
+  transform: none;
+}
+.wx-page .ou-btn.wx-addbtn {
+  background: #fff;
+  color: #1565d8;
+  min-height: 36px;
+  padding: 0 18px;
+  font-weight: 600;
+}
+.wx-page .app-body,
+.wx-dpage .app-body {
+  padding: 0 16px 28px;
+  gap: 12px;
+  width: 100%;
+  max-width: 1040px;
+  margin-inline: auto;
+}
+/* wide windows (tablet / full screen): the 10-day list beside the cards */
+@container (min-width: 900px) {
+  .wx-page .app-body:has(> .wx-daily) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    align-items: start;
+    column-gap: 16px;
+  }
+  .wx-page .app-body > * {
+    grid-column: 1 / -1;
+  }
+  .wx-page .app-body > .wx-daily {
+    grid-column: 1;
+  }
+  .wx-page .app-body > .wx-grid {
+    grid-column: 2;
+  }
+}
+.wx-page .app-body.swiping {
+  transition: none;
+}
+.wx-page .app-body {
+  transition: transform 260ms var(--ease), opacity 260ms var(--ease);
+}
+.wx-page[data-kind="snow"][data-phase="day"],
+.wx-page[data-kind="fog"][data-phase="day"] {
+  text-shadow: 0 1px 6px rgba(20, 40, 70, 0.35);
+}
+
+/* ——— header ——— */
+.wx-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 18px 6px 6px;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.14);
+}
+.wx-place {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+.wx-here {
+  display: flex;
+  opacity: 0.95;
+}
+.wx-name {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wx-dots {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 6px -5px 0;
+}
+.wx-dot {
+  width: 17px;
+  height: 17px;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.5);
+}
+.wx-dot::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.wx-dot.here::before {
+  display: none;
+}
+.wx-dot.on {
+  color: #fff;
+}
+.wx-local {
+  margin-top: 4px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+.wx-now {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+.wx-now-l {
+  min-width: 0;
+}
+.wx-temp {
+  font-family: var(--font-display);
+  font-size: 100px;
+  font-weight: 200;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+.wx-now-ico {
+  width: 128px;
+  height: 128px;
+  flex: none;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.16));
+}
+.wx-cond {
+  margin-top: 6px;
+  font-size: 21px;
+  font-weight: 500;
+}
+.wx-hl {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 500;
+}
+.wx-hl > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+.wx-arrow {
+  display: inline-flex;
+  opacity: 0.85;
+}
+.wx-feels {
+  margin-top: 2px;
+  font-size: 15px;
+  opacity: 0.9;
+}
+.wx-updated {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 12px;
+  font-size: 12.5px;
+  opacity: 0.85;
+}
+.wx-refresh {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+}
+.wx-refresh:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+.wx-refresh.spin svg {
+  animation: wx-spin 0.9s linear infinite;
+}
+@keyframes wx-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ——— glass cards ——— */
+.wx-card,
+.wx-tile,
+.wx-dcard,
+.wx-chart,
+.wx-rows {
+  background: rgba(14, 42, 96, 0.16);
+  border-radius: var(--r-lg);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.2);
+}
+[data-phase="night"] .wx-card,
+[data-phase="night"] .wx-tile {
+  background: rgba(255, 255, 255, 0.09);
+}
+.wx-card {
+  padding: 14px 16px;
+}
+.wx-card-h {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  padding-bottom: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  opacity: 0.88;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+.wx-insight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wx-insight p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+.wx-insight-i {
+  display: flex;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* hourly: columns over a temperature line */
+.wx-hourly {
+  cursor: pointer;
+}
+.wx-hstrip {
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -10px;
+  padding: 6px 0 2px;
+  cursor: auto;
+}
+.wx-hstrip::-webkit-scrollbar {
+  display: none;
+}
+.wx-hcols {
+  position: relative;
+  display: flex;
+}
+.wx-hgraph-wrap {
+  position: absolute;
+  top: 60px;
+  inset-inline-start: 0;
+  height: 58px;
+  pointer-events: none;
+}
+[dir="rtl"] .wx-hgraph {
+  transform: scaleX(-1);
+}
+.wx-hline {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.wx-hgraph circle {
+  fill: #fff;
+}
+.wx-hgraph circle.now {
+  fill: #ffd64a;
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+.wx-hcol {
+  flex: none;
+  width: 58px;
+  display: grid;
+  grid-template-rows: 18px 34px 58px 16px;
+  row-gap: 4px;
+  justify-items: center;
+  font-size: 13px;
+}
+.wx-ht {
+  white-space: nowrap;
+  opacity: 0.88;
+}
+.wx-hcol.now .wx-ht {
+  font-weight: 700;
+  opacity: 1;
+}
+.wx-hi {
+  width: 34px;
+  height: 34px;
+}
+.wx-hg {
+  position: relative;
+  width: 100%;
+  height: 58px;
+}
+.wx-hv {
+  position: absolute;
+  inset-inline: 0;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 18px;
+}
+.wx-hp,
+.wx-dp {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #fff;
+}
+.wx-hp > span,
+.wx-dp > span {
+  display: flex;
+  color: #a8dcff;
+}
+.wx-hp.none,
+.wx-dp.none {
+  visibility: hidden;
+}
+
+/* 10-day list with range bars */
+.wx-drows {
+  display: flex;
+  flex-direction: column;
+}
+.wx-drow {
+  display: grid;
+  grid-template-columns: minmax(3.6em, 1.2fr) 3.4em 30px 2.6em minmax(56px, 2fr) 2.6em;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 6px;
+  margin: 0 -6px;
+  border-radius: 14px;
+  color: inherit;
+  text-align: start;
+  font-size: 15px;
+}
+.wx-drow:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.wx-dn {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wx-di {
+  width: 30px;
+  height: 30px;
+}
+.wx-dlo {
+  text-align: end;
+  opacity: 0.72;
+}
+.wx-dhi {
+  font-weight: 600;
+}
+.wx-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.2);
+}
+.wx-bar > i {
+  position: absolute;
+  inset-block: 0;
+  border-radius: 3px;
+}
+.wx-bar-now {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin-inline-start: -5px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+/* detail cards */
+.wx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  grid-auto-flow: row dense; /* the double-width Wind card mustn't leave a hole in an odd number of columns */
+  gap: 12px;
+}
+.wx-tile {
+  min-height: 176px;
+  padding: 14px 16px 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  color: inherit;
+  text-align: start;
+  transition: background 150ms;
+}
+.wx-tile:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.wx-t-wind {
+  grid-column: span 2;
+}
+.wx-tile-h {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.86;
+}
+.wx-tile-h > span:last-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wx-tile-v {
+  margin-top: 8px;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+.wx-tile-v small {
+  margin-inline-start: 4px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+.wx-tile-v.sm {
+  margin-top: 6px;
+  font-size: 19px;
+  font-family: var(--font);
+  font-weight: 600;
+}
+.wx-tile-s {
+  font-size: 14px;
+  font-weight: 500;
+}
+.wx-tile-n {
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: 12.5px;
+  line-height: 1.35;
+  opacity: 0.85;
+}
+.wx-gauge {
+  position: relative;
+  height: 6px;
+  margin-top: 12px;
+  border-radius: 3px;
+}
+.wx-gauge b {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin-inline-start: -6px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.22);
+}
+.wx-meter {
+  position: relative;
+  height: 6px;
+  margin-top: 12px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+.wx-meter b {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  border-radius: 3px;
+  background: #8fd3ff;
+}
+.wx-wind-b {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: 1;
+}
+.wx-wind-t {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  align-self: stretch;
+}
+.wx-compass-wrap {
+  flex: none;
+}
+.wx-compass .tk line {
+  stroke: rgba(255, 255, 255, 0.35);
+  stroke-width: 1;
+}
+.wx-compass .tk line.l {
+  stroke: #fff;
+  stroke-width: 1.6;
+}
+.wx-compass .lb text {
+  fill: rgba(255, 255, 255, 0.85);
+  font: 700 9px var(--font);
+}
+.wx-compass .ar {
+  stroke: #fff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.wx-compass .ah {
+  fill: #fff;
+}
+.wx-compass .at {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+}
+.wx-compass .hub {
+  fill: rgba(10, 30, 60, 0.32);
+}
+.wx-compass .sp {
+  fill: #fff;
+  font: 600 15px var(--font-display);
+}
+.wx-compass .un {
+  fill: rgba(255, 255, 255, 0.8);
+  font: 500 8px var(--font);
+}
+.wx-arc-wrap {
+  margin-top: 6px;
+}
+.wx-sunarc .arc {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.4);
+  stroke-width: 2;
+  stroke-dasharray: 3 4;
+}
+.wx-sunarc .done {
+  fill: none;
+  stroke: #ffd64a;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+.wx-sunarc .hz {
+  stroke: rgba(255, 255, 255, 0.35);
+  stroke-width: 1.4;
+}
+.wx-sunarc .sun {
+  fill: #ffd64a;
+  filter: drop-shadow(0 0 6px rgba(255, 214, 74, 0.8));
+}
+.wx-moon-b {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.wx-moon-b > span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.wx-moon-img {
+  flex: none;
+  margin-top: 8px;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 230, 0.35));
+}
+.wx-moonimg .mn-dark {
+  fill: rgba(255, 255, 255, 0.12);
+}
+.wx-moonimg .mn-cr circle {
+  fill: rgba(0, 0, 0, 0.08);
+}
+.wx-pres-b {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+.wx-pgauge .tk line {
+  stroke: rgba(255, 255, 255, 0.4);
+  stroke-width: 1.2;
+}
+.wx-pgauge .nd {
+  fill: #fff;
+}
+.wx-pgauge .tr path {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.wx-pgauge .pv {
+  fill: #fff;
+  font: 600 17px var(--font-display);
+}
+.wx-pgauge .pu,
+.wx-pgauge .lh {
+  fill: rgba(255, 255, 255, 0.8);
+  font: 500 8.5px var(--font);
+}
+.wx-credit {
+  padding: 6px 0 4px;
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.65;
+}
+
+/* loading / errors */
+.wx-empty {
+  min-height: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 40px 30px 20px;
+  text-align: center;
+  font-size: 16px;
+}
+.wx-empty p {
+  margin: 0;
+  max-width: 320px;
+  line-height: 1.45;
+}
+.wx-empty-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 22px;
+  font-weight: 600;
+}
+.wx-empty-ico {
+  width: 120px;
+  height: 120px;
+}
+.wx-empty .ou-btn.primary {
+  background: #fff;
+  color: #1565d8;
+}
+
+/* ——— detail pages ——— */
+.wx-dplace {
+  padding: 2px 4px 0;
+  font-size: 13px;
+  opacity: 0.85;
+}
+.wx-days {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -16px;
+  padding: 2px 16px;
+}
+.wx-day {
+  flex: none;
+  min-width: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 6px;
+  border-radius: 18px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+.wx-day span {
+  font-size: 12px;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+.wx-day b {
+  font-size: 17px;
+  font-weight: 600;
+}
+.wx-day.on {
+  background: #fff;
+  color: #14213d;
+}
+.wx-ddate {
+  margin: 2px 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.wx-dmain {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.wx-dhero {
+  min-height: 92px;
+  padding: 4px 4px 0;
+}
+.wx-dbig {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.wx-dbig .num {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+.wx-dbig .lvl {
+  font-size: 18px;
+  font-weight: 600;
+}
+.wx-dbig .lo {
+  font-size: 26px;
+  opacity: 0.7;
+}
+.wx-dbig .ico {
+  width: 52px;
+  height: 52px;
+}
+.wx-dsub {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+  opacity: 0.88;
+}
+.wx-dhero.scrub .wx-dbig .num {
+  color: #ffe58a;
+}
+.wx-chart {
+  padding: 8px 8px 4px;
+}
+.wx-chart svg.wxc {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none;
+}
+.wxc .gl {
+  stroke: rgba(255, 255, 255, 0.16);
+  stroke-width: 1;
+}
+.wxc .gv {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+}
+.wxc .yl,
+.wxc .xl {
+  fill: rgba(255, 255, 255, 0.78);
+  font: 500 13px var(--font);
+}
+.wxc .ln {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.wxc .ln.dash {
+  stroke-width: 2.2;
+  stroke-dasharray: 6 5;
+}
+.wxc .past {
+  opacity: 0.42;
+}
+.wxc .ghost {
+  opacity: 0.8;
+}
+.wxc .mk circle {
+  fill: #fff;
+}
+.wxc .mk text {
+  fill: #fff;
+  font: 600 13px var(--font);
+}
+.wxc .nowl {
+  stroke: rgba(255, 255, 255, 0.65);
+  stroke-width: 1.4;
+  stroke-dasharray: 3 3;
+}
+.wxc .nowd {
+  fill: #fff;
+  stroke: rgba(0, 0, 0, 0.25);
+  stroke-width: 2;
+}
+.wxc .scrub line {
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+.wxc .scrub circle {
+  fill: #ffe58a;
+  stroke: #fff;
+  stroke-width: 2;
+}
+.wxc .hit {
+  cursor: crosshair;
+}
+.wx-dh {
+  margin: 6px 4px -4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.wx-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 0 6px;
+  font-size: 12.5px;
+  opacity: 0.9;
+}
+.wx-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.wx-legend .sw {
+  width: 20px;
+  height: 3px;
+  border-radius: 2px;
+  background: #7fd6ff;
+}
+.wx-legend .sw.dash {
+  background: repeating-linear-gradient(90deg, #fff 0 6px, transparent 6px 10px);
+}
+.wx-legend .sw.grad {
+  background: linear-gradient(90deg, #4fd0e4, #fbd43c, #fb9a2c);
+}
+.wx-dcard {
+  padding: 14px 16px;
+}
+.wx-dcard h4 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.wx-dcard p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.92;
+}
+.wx-dempty {
+  padding: 40px 10px;
+  text-align: center;
+  opacity: 0.85;
+}
+.wx-dnote {
+  margin: -4px 6px 0;
+  font-size: 13px;
+  opacity: 0.85;
+}
+.wx-rows {
+  padding: 2px 16px;
+}
+.wx-rowx {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 46px;
+  font-size: 14.5px;
+}
+.wx-rowx + .wx-rowx {
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+.wx-rowx b {
+  font-weight: 600;
+  text-align: end;
+}
+.wx-scale {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 6px 0;
+  font-size: 12px;
+  opacity: 0.9;
+}
+.wx-scale i {
+  position: absolute;
+  top: 0;
+  inset-inline: 6px;
+  height: 6px;
+  border-radius: 3px;
+}
+[dir="rtl"] .wx-scale i {
+  transform: scaleX(-1);
+}
+.wx-aqscale {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px 12px;
+  padding: 0 6px;
+  font-size: 12.5px;
+}
+.wx-aqscale div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wx-aqscale i {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: 50%;
+}
+.wx-aqscale span {
+  flex: 1;
+  min-width: 0;
+}
+.wx-aqscale em {
+  font-style: normal;
+  opacity: 0.75;
+}
+.wx-chart.sun {
+  padding: 12px 12px 8px;
+}
+.wx-sunpath {
+  display: block;
+  width: 100%;
+  height: 170px;
+}
+.wx-sunpath .sp-day {
+  fill: none;
+  stroke: #ffd64a;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+.wx-sunpath .sp-night {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.35);
+  stroke-width: 2;
+  stroke-dasharray: 4 5;
+  vector-effect: non-scaling-stroke;
+}
+.wx-sunpath .sp-hz {
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.wx-sunpath .sp-sun {
+  fill: #ffd64a;
+}
+.wx-sunpath .sp-sun.below {
+  fill: rgba(255, 255, 255, 0.6);
+}
+.wx-sunx {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+.wx-dmoon {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 6px 4px;
+}
+.wx-dmoon .num {
+  font-size: 30px;
+  font-weight: 500;
+}
+.wx-dmoon .wx-moonimg {
+  flex: none;
+  filter: drop-shadow(0 0 22px rgba(255, 255, 230, 0.35));
+}
+.wx-cal {
+  padding: 12px 10px;
+  border-radius: var(--r-lg);
+  background: rgba(255, 255, 255, 0.12);
+}
+.wx-cal-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.wx-cal-h button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+}
+.wx-cal-h button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+[dir="rtl"] .wx-cal-h svg {
+  transform: scaleX(-1);
+}
+.wx-cal-g {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px 2px;
+  text-align: center;
+}
+.wx-cal-g b {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.75;
+}
+.wx-cal-g span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0;
+  border-radius: 12px;
+}
+.wx-cal-g span.on {
+  background: rgba(255, 255, 255, 0.22);
+}
+.wx-cal-g em {
+  font-style: normal;
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+/* ——— Manage locations ——— */
+.wx-ppage .app-body {
+  gap: 10px;
+}
+.wx-ppage.editing .app-body {
+  padding-bottom: 96px;
+}
+.wx-phint {
+  margin: 0 6px 2px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-2);
+}
+.wx-plist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wx-pcard {
+  position: relative;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.18);
+  transition: transform 160ms var(--ease), box-shadow 160ms;
+}
+.wx-pc-sky {
+  position: absolute;
+  inset: 0;
+}
+.wx-pc-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 18px;
+  color: inherit;
+  text-align: start;
+}
+.wx-pc-main:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.wx-pc-l {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.wx-pc-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 18px;
+  font-weight: 600;
+  min-width: 0;
+}
+.wx-pc-name > span:last-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wx-pc-sub {
+  font-size: 12.5px;
+  opacity: 0.9;
+}
+.wx-pc-cond {
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: 0.95;
+}
+.wx-pc-r {
+  flex: none;
+  display: grid;
+  grid-template-columns: 46px auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 6px;
+  text-align: end;
+}
+.wx-pc-ico {
+  grid-row: span 2;
+  width: 46px;
+  height: 46px;
+}
+.wx-pc-temp {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 300;
+  line-height: 1;
+}
+.wx-pc-hl {
+  font-size: 12px;
+  opacity: 0.92;
+}
+.wx-pcheck,
+.wx-pall {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.wx-pcheck {
+  padding-inline-start: 16px;
+}
+.wx-pcheck input,
+.wx-pall input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.wx-pcheck-box {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  color: transparent;
+  background: rgba(0, 0, 0, 0.1);
+}
+.wx-pcheck input:checked + .wx-pcheck-box,
+.wx-pall input:checked + .wx-pcheck-box {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.wx-pcheck input:focus-visible + .wx-pcheck-box,
+.wx-pall input:focus-visible + .wx-pcheck-box {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.wx-pgrip {
+  position: relative;
+  z-index: 1;
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  padding: 0 16px;
+  cursor: grab;
+  touch-action: none;
+}
+.wx-pcard.dragging {
+  z-index: 5;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+  transition: none;
+}
+.wx-pcard.dragging .wx-pgrip {
+  cursor: grabbing;
+}
+.wx-pbar {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 8px 18px 12px;
+  background: var(--bg);
+  box-shadow: 0 -1px 0 var(--divider);
+}
+.wx-pall,
+.wx-pbar-btn {
+  flex-direction: column;
+  gap: 3px;
+  min-width: 72px;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 12.5px;
+  color: var(--text);
+}
+.wx-pall .wx-pcheck-box {
+  border-color: var(--text-3);
+  background: none;
+}
+.wx-pbar-btn {
+  display: flex;
+  align-items: center;
+}
+.wx-pbar-btn:hover:not(:disabled),
+.wx-pall:hover {
+  background: var(--surface-2);
+}
+.wx-pbar-btn:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+.wx-ppage .ou-btn.wx-done {
+  min-height: 36px;
+  padding: 0 16px;
+}
+
+/* search, settings */
+.wx-spage .ou-searchbox {
+  margin-bottom: 4px;
+}
+.wx-sresults {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wx-shint {
+  margin: 4px 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-2);
+}
+.wx-sempty {
+  padding: 40px 20px;
+}
+.wx-about {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.wx-temp-row .ou-seg {
+  flex: none;
+}
+
+/* ——— the sky ——— */
+.wxk {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transition: opacity 600ms var(--ease);
+}
+.wxk.fade {
+  opacity: 0;
+}
+.wxk > * {
+  pointer-events: none;
+}
+.wxk-sun {
+  position: absolute;
+  top: -110px;
+  inset-inline-end: -150px;
+  width: 400px;
+  height: 400px;
+}
+.wxk-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 244, 196, 0.85) 0%, rgba(255, 226, 140, 0.4) 26%, rgba(255, 226, 140, 0) 62%);
+  animation: wxk-pulse 8s ease-in-out infinite alternate;
+}
+.wxk-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffef6 0%, #fff6c8 24%, rgba(255, 232, 150, 0.55) 46%, rgba(255, 226, 130, 0) 70%);
+}
+.wxk-sun.low {
+  top: auto;
+  bottom: 10%;
+  inset-inline-end: -170px;
+}
+.wxk-sun.low .wxk-halo {
+  background: radial-gradient(circle, rgba(255, 196, 128, 0.85) 0%, rgba(255, 150, 96, 0.38) 30%, rgba(255, 150, 96, 0) 62%);
+}
+.wxk-sun.low .wxk-core {
+  background: radial-gradient(circle, #fff6e6 0%, #ffd2a0 24%, rgba(255, 150, 90, 0.55) 46%, rgba(255, 140, 80, 0) 70%);
+}
+.wxk-sun.hazy {
+  opacity: 0.4;
+}
+@keyframes wxk-pulse {
+  to {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+.wxk-moon {
+  position: absolute;
+  top: 64px;
+  inset-inline-end: 22px;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 228, 0.5));
+}
+.wxk-moon .mn-dark {
+  fill: rgba(255, 255, 255, 0.07);
+}
+.wxk-stars {
+  position: absolute;
+  inset: 0 0 30% 0;
+  -webkit-mask-image: linear-gradient(#000 45%, transparent);
+  mask-image: linear-gradient(#000 45%, transparent);
+}
+.wxk-stars b {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.8);
+  animation-name: wxk-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+@keyframes wxk-twinkle {
+  from {
+    opacity: 0.2;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.wxk-fall {
+  position: absolute;
+  inset: calc(-1 * var(--th)) 0 0 0;
+  background-image: var(--img);
+  background-size: var(--tw) var(--th);
+  animation-name: wxk-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+.wxk-fall.still {
+  inset: 0;
+  animation: none;
+  will-change: auto;
+}
+@keyframes wxk-fall {
+  to {
+    transform: translateY(var(--th));
+  }
+}
+.wxk-rain {
+  position: absolute;
+  inset: -12% -12% 0;
+  transform: rotate(7deg);
+  -webkit-mask-image: linear-gradient(#000 35%, transparent 95%);
+  mask-image: linear-gradient(#000 35%, transparent 95%);
+}
+.wxk-snow {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: linear-gradient(#000 50%, transparent);
+  mask-image: linear-gradient(#000 50%, transparent);
+}
+.wxk-clouds {
+  position: absolute;
+  inset: 0 0 25% 0;
+}
+.wxk-cloud {
+  position: absolute;
+  width: var(--w);
+  height: calc(var(--w) * 0.42);
+  animation-name: wxk-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.wxk-cloud i {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.72) 55%, rgba(255, 255, 255, 0));
+}
+.wxk-cloud i:nth-child(1) {
+  width: 56%;
+  height: 100%;
+  left: 6%;
+  top: 0;
+}
+.wxk-cloud i:nth-child(2) {
+  width: 46%;
+  height: 86%;
+  left: 46%;
+  top: 12%;
+}
+.wxk-cloud i:nth-child(3) {
+  width: 74%;
+  height: 70%;
+  left: 18%;
+  top: 32%;
+}
+.wxk-clouds.soft i {
+  background: radial-gradient(closest-side, rgba(236, 242, 250, 0.8), rgba(226, 234, 244, 0.5) 55%, rgba(226, 234, 244, 0));
+}
+.wxk-clouds.grey i {
+  background: radial-gradient(closest-side, rgba(196, 207, 222, 0.88), rgba(170, 183, 202, 0.55) 55%, rgba(170, 183, 202, 0));
+}
+.wxk-clouds.dark i {
+  background: radial-gradient(closest-side, rgba(92, 100, 126, 0.95), rgba(70, 78, 104, 0.6) 55%, rgba(70, 78, 104, 0));
+}
+.p-night .wxk-clouds i {
+  background: radial-gradient(closest-side, rgba(126, 142, 178, 0.55), rgba(96, 110, 146, 0.3) 55%, rgba(96, 110, 146, 0));
+}
+@keyframes wxk-drift {
+  from {
+    transform: translateX(-34px);
+  }
+  to {
+    transform: translateX(42px);
+  }
+}
+.wxk-fog i {
+  position: absolute;
+  left: -30%;
+  width: 160%;
+  height: 20%;
+  background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0));
+  animation-name: wxk-sway;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+@keyframes wxk-sway {
+  to {
+    transform: translateX(12%);
+  }
+}
+.wxk-flash {
+  position: absolute;
+  inset: 0;
+  background: rgba(230, 236, 255, 0.55);
+  opacity: 0;
+  animation: wxk-flash 9s infinite;
+}
+@keyframes wxk-flash {
+  0%, 90%, 92.5%, 95.5%, 100% {
+    opacity: 0;
+  }
+  91%, 94.5% {
+    opacity: 0.6;
+  }
+}
+/* the small still skies of Manage locations */
+.wxk.mini .wxk-sun {
+  top: -95px;
+  inset-inline-end: -95px;
+  width: 220px;
+  height: 220px;
+}
+.wxk.mini .wxk-core {
+  width: 90px;
+  height: 90px;
+  margin: -45px 0 0 -45px;
+}
+.wxk.mini .wxk-sun.low {
+  top: auto;
+  bottom: -40px;
+}
+.wxk.mini .wxk-moon {
+  top: 12px;
+  inset-inline-end: 26px;
+}
+.wxk.mini .wxk-rain {
+  inset: -20% -10% 0;
+}
+.wxk.mini,
+.wxk.mini *,
+:root[data-motion="reduce"] .wxk,
+:root[data-motion="reduce"] .wxk * {
+  animation: none !important;
+}
+
+/* ——— widgets ——— */
+.wg.wg-weather {
+  background: var(--wx-sky, linear-gradient(170deg, #1f74f0, #7cc2ff));
+  color: #fff;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.12);
+}
+.wgw-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.wgw-main {
+  min-width: 0;
+}
+.wgw-city {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wgw-temp {
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+.wgw-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: end;
+  font-size: 12.5px;
+  min-width: 0;
+}
+.wgw-icon {
+  width: 46px;
+  height: 46px;
+  margin-bottom: 4px;
+}
+.wgw-cond {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.wgw-hl {
+  opacity: 0.85;
+}
+.wg-weather.w-s .wgw-top {
+  flex-direction: column;
+  height: 100%;
+}
+.wg-weather.w-s .wgw-side {
+  width: 100%;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  text-align: start;
+}
+.wg-weather.w-s .wgw-icon {
+  position: absolute;
+  top: 14px;
+  inset-inline-end: 14px;
+  width: 40px;
+  height: 40px;
+}
+.wg-weather.w-s .wgw-main {
+  width: 100%;
+  padding-inline-end: 44px;
+}
+.wg-weather.w-s .wgw-cond {
+  flex: 1 0 100%;
+}
+.wg-weather.w-s .wgw-temp {
+  margin-top: 4px;
+}
+.wgw-hours {
+  display: flex;
+  justify-content: space-between;
+  gap: 2px;
+  margin-top: auto;
+}
+.wgw-hour {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  min-width: 0;
+}
+.wgw-hour-t {
+  opacity: 0.85;
+  white-space: nowrap;
+}
+.wgw-hour-i {
+  width: 28px;
+  height: 28px;
+}
+.wgw-hour-v {
+  font-size: 14px;
+  font-weight: 600;
+}
+.wg-weather.w-l .wgw-hours {
+  margin-top: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+.wgw-days {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex: 1;
+}
+.wgw-day {
+  display: grid;
+  grid-template-columns: 1fr 26px 3em 5.2em;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.wgw-day-n {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wgw-day-i {
+  width: 26px;
+  height: 26px;
+}
+.wgw-day-pop {
+  font-size: 12px;
+  color: #c4e6ff;
+  text-align: end;
+}
+.wgw-day-v {
+  text-align: end;
+  opacity: 0.8;
+}
+.wgw-day-v b {
+  opacity: 1;
+  font-weight: 600;
+}
+.wgw-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.wgw-empty-i {
+  width: 52px;
+  height: 52px;
+}
+
+/* Weather forecast widget */
+.wg.wg-wfc {
+  gap: 8px;
+}
+.wfc-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+.wfc-now {
+  min-width: 0;
+}
+.wfc-temp {
+  font-family: var(--font-display);
+  font-size: 42px;
+  font-weight: 300;
+  line-height: 1.05;
+}
+.wfc-cond {
+  font-size: 12.5px;
+  font-weight: 500;
+  opacity: 0.92;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wfc-icon {
+  width: 54px;
+  height: 54px;
+  flex: none;
+}
+.wg-wfc.w-m {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 12px;
+}
+.wg-wfc.w-m .wfc-top {
+  flex: none;
+  width: 30%;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.wg-wfc.w-m .wfc-temp {
+  font-size: 36px;
+}
+.wg-wfc.w-m .wfc-cond {
+  white-space: normal;
+}
+.wg-wfc.w-m .wfc-icon {
+  display: none;
+}
+.wfc-cols {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  min-width: 0;
+}
+.wfc-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  padding: 2px 0;
+  font-size: 12.5px;
+}
+.wfc-col-n {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.wfc-col-i {
+  width: 34px;
+  height: 34px;
+}
+.wfc-col-v {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+.wfc-col-v b {
+  font-size: 15px;
+  font-weight: 600;
+}
+.wfc-col-v span {
+  opacity: 0.75;
+}
+.wfc-hours {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+.wfc-graph {
+  position: absolute;
+  top: 14px;
+  inset-inline: 0;
+  height: 34px;
+  pointer-events: none;
+}
+.wfc-graph svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.wfc-graph polyline {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.75);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.wfc-hour {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-rows: 50px 26px auto;
+  justify-items: center;
+  font-size: 11.5px;
+}
+.wfc-hour-g {
+  position: relative;
+  width: 100%;
+}
+.wfc-hour-v {
+  position: absolute;
+  inset-inline: 0;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 16px;
+}
+.wfc-hour-i {
+  width: 26px;
+  height: 26px;
+}
+.wfc-hour-t {
+  opacity: 0.85;
+  white-space: nowrap;
+}
+.wfc-days {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.wfc-day {
+  display: grid;
+  grid-template-columns: minmax(3em, 1fr) 24px 2.4em minmax(40px, 1.6fr) 2.4em;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+}
+.wfc-day-n {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wfc-day-i {
+  width: 24px;
+  height: 24px;
+}
+.wfc-day-lo {
+  text-align: end;
+  opacity: 0.75;
+}
+.wfc-day-hi {
+  font-weight: 600;
+}
+.wfc-bar {
+  position: relative;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.22);
+}
+.wfc-bar i {
+  position: absolute;
+  inset-block: 0;
+  border-radius: 3px;
+}
+
+/* ——— Weather widgets: fluid sizing ———
+   Sizes follow the widget box (.wg is a size container): a medium widget is ~440×175 on a laptop and ~690×300 on a big
+   screen, and fixed sizes left a small temperature in the corner over an empty band. */
+.wg.wg-weather {
+  padding: clamp(14px, 6.5cqh, 28px) clamp(16px, 5.5cqw, 30px);
+  gap: clamp(6px, 3cqh, 16px);
+}
+.wgw-city {
+  font-size: clamp(13px, min(4.2cqw, 7.5cqh), 22px);
+}
+.wgw-temp {
+  font-size: clamp(38px, min(18cqw, 30cqh), 124px);
+}
+.wgw-side {
+  font-size: clamp(12px, min(3.6cqw, 6.5cqh), 19px);
+}
+.wgw-icon {
+  width: clamp(40px, 24cqh, 96px);
+  height: clamp(40px, 24cqh, 96px);
+}
+.wg-weather.w-s .wgw-icon {
+  top: clamp(12px, 6.5cqh, 26px);
+  inset-inline-end: clamp(12px, 6cqw, 26px);
+  width: clamp(34px, 22cqh, 84px);
+  height: clamp(34px, 22cqh, 84px);
+}
+.wg-weather.w-s .wgw-main {
+  padding-inline-end: clamp(40px, 24cqh, 92px);
+}
+.wg-weather.w-s .wgw-temp {
+  font-size: clamp(38px, min(24cqw, 30cqh), 116px);
+}
+.wgw-hour {
+  gap: clamp(2px, 1.6cqh, 8px);
+  font-size: clamp(11px, min(2.6cqw, 6cqh), 18px);
+}
+.wgw-hour-i {
+  width: clamp(22px, 13cqh, 50px);
+  height: clamp(22px, 13cqh, 50px);
+}
+.wgw-hour-v {
+  font-size: clamp(13px, min(3cqw, 7cqh), 22px);
+}
+.wg-weather.w-l .wgw-hour-i {
+  width: clamp(22px, 7cqh, 44px);
+  height: clamp(22px, 7cqh, 44px);
+}
+.wg-weather.w-l .wgw-hour {
+  font-size: clamp(11px, min(2.6cqw, 3.2cqh), 17px);
+}
+.wg-weather.w-l .wgw-hour-v {
+  font-size: clamp(13px, min(3cqw, 3.8cqh), 21px);
+}
+.wg-weather.w-l .wgw-temp {
+  font-size: clamp(38px, min(16cqw, 15cqh), 110px);
+}
+.wg-weather.w-l .wgw-icon {
+  width: clamp(40px, 12cqh, 88px);
+  height: clamp(40px, 12cqh, 88px);
+}
+.wgw-day {
+  grid-template-columns: 1fr clamp(26px, 6cqh, 40px) 3em 5.2em;
+  font-size: clamp(13px, min(3cqw, 3.4cqh), 20px);
+}
+.wgw-day-i {
+  width: clamp(26px, 6cqh, 40px);
+  height: clamp(26px, 6cqh, 40px);
+}
+.wgw-day-pop {
+  font-size: 0.85em;
+}
+
+/* Weather forecast (medium and large) */
+.wfc-temp {
+  font-size: clamp(32px, min(10cqw, 16cqh), 96px);
+}
+.wg-wfc.w-m .wfc-temp {
+  font-size: clamp(30px, min(9cqw, 26cqh), 90px);
+}
+.wfc-cond {
+  font-size: clamp(12px, min(2.8cqw, 6cqh), 19px);
+}
+.wfc-col {
+  font-size: clamp(12px, min(2.6cqw, 6.2cqh), 19px);
+}
+.wfc-col-i {
+  width: clamp(28px, 17cqh, 64px);
+  height: clamp(28px, 17cqh, 64px);
+}
+.wg-wfc.w-l .wfc-col-i {
+  width: clamp(28px, 8cqh, 54px);
+  height: clamp(28px, 8cqh, 54px);
+}
+.wfc-col-v b {
+  font-size: clamp(14px, min(3.2cqw, 7cqh), 23px);
+}
+.wg-weather.w-s .wgw-city {
+  font-size: clamp(13px, min(6cqw, 7.5cqh), 22px);
+}
+.wg-weather.w-s .wgw-side {
+  font-size: clamp(12px, min(5.4cqw, 6.5cqh), 20px);
+}
+
+/* Medium: the hourly row must always fit, down to a ~160px-tall box (a 768px laptop screen with Chrome's bars). The
+   minimums above add up to more than that, so the medium size has smaller floors; the top shrinks, the hours never. */
+.wg-weather .wgw-hours {
+  flex-shrink: 0;
+}
+/* the icon sits beside the condition and high/low (One UI's 4×2 weather), not above them: a whole row shorter, so the
+   top never runs into the hours (it did in Arabic, whose font is taller) */
+.wg-weather.w-m .wgw-side {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-areas: 'cond icon' 'hl icon';
+  column-gap: clamp(6px, 1.6cqw, 14px);
+  align-items: center;
+}
+.wg-weather.w-m .wgw-icon {
+  grid-area: icon;
+  margin: 0;
+}
+.wg-weather.w-m .wgw-cond {
+  grid-area: cond;
+}
+.wg-weather.w-m .wgw-hl {
+  grid-area: hl;
+}
+.wg-weather.w-m {
+  padding: clamp(10px, 6cqh, 28px) clamp(14px, 5cqw, 30px);
+  gap: clamp(4px, 2.5cqh, 14px);
+}
+.wg-weather.w-m .wgw-city {
+  font-size: clamp(12px, min(4cqw, 7cqh), 21px);
+}
+.wg-weather.w-m .wgw-temp {
+  font-size: clamp(30px, min(16cqw, 27cqh), 120px);
+}
+.wg-weather.w-m .wgw-icon {
+  width: clamp(28px, 22cqh, 84px);
+  height: clamp(28px, 22cqh, 84px);
+}
+.wg-weather.w-m .wgw-side {
+  font-size: clamp(11px, min(3.4cqw, 6cqh), 18px);
+}
+.wg-weather.w-m .wgw-hour {
+  gap: clamp(1px, 1.2cqh, 6px);
+  font-size: clamp(10px, min(2.5cqw, 5.6cqh), 17px);
+}
+.wg-weather.w-m .wgw-hour-i {
+  width: clamp(16px, 11cqh, 46px);
+  height: clamp(16px, 11cqh, 46px);
+}
+.wg-weather.w-m .wgw-hour-v {
+  font-size: clamp(11px, min(2.9cqw, 6.6cqh), 21px);
+  line-height: 1.15;
+}
+
+/* Large weather and forecast widgets in a short window: fewer days rather than a list that spills out of the box. */
+@container (max-height: 420px) {
+  .wg-weather.w-l .wgw-day:nth-child(n + 5),
+  .wg-wfc.w-l .wfc-day:nth-child(n + 5) {
+    display: none;
+  }
+}
+@container (max-height: 350px) {
+  .wg-weather.w-l .wgw-day:nth-child(n + 4),
+  .wg-wfc.w-l .wfc-day:nth-child(n + 4) {
+    display: none;
+  }
+}

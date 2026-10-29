@@ -1,0 +1,712 @@
+/* Welcome tour (One UI setup wizard) and the What's new dialog — js/shell/onboarding.js, js/shell/whatsnew.js */
+
+/* While the tour is pending nothing of the shell shows, not even for a frame (main.js sets the class before the Lock
+   and Home screens are built, including after the language switch reloads the page). */
+html.onb-pending #statusbar,
+html.onb-pending #home,
+html.onb-pending #drawer,
+html.onb-pending #finder,
+html.onb-pending #edge,
+html.onb-pending #app-layer,
+html.onb-pending #quickpanel,
+html.onb-pending #lock,
+html.onb-pending #headsup {
+  visibility: hidden !important;
+}
+
+.onb {
+  --onb-bg: #ffffff;
+  --onb-card: #f2f2f5;
+  --onb-dir: 1;
+  position: fixed;
+  inset: 0;
+  /* above the Lock screen (80) and banners (90), below #overlay-layer (100) so its toasts show on top */
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  background: var(--onb-bg);
+  color: var(--text);
+  transition: opacity 400ms var(--ease);
+}
+:root[data-theme="dark"] .onb {
+  --onb-bg: #000000;
+  --onb-card: #17171a;
+}
+[dir="rtl"] .onb {
+  --onb-dir: -1;
+}
+.onb.out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* the welcome page glows with the wallpaper's colours rising from the bottom */
+.onb-bloom {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 500ms var(--ease);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 30%, rgba(0, 0, 0, 0.55) 62%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 30%, rgba(0, 0, 0, 0.55) 62%, #000 100%);
+  pointer-events: none;
+}
+.onb[data-step="welcome"] .onb-bloom {
+  opacity: 1;
+}
+
+.onb-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  justify-content: center;
+}
+.onb-page {
+  width: min(640px, 100%);
+  padding: max(8vh, 36px) 24px 24px;
+  animation: onb-in 420ms var(--ease) both;
+}
+.onb-page.from-back {
+  animation-name: onb-in-back;
+}
+@keyframes onb-in {
+  from {
+    opacity: 0;
+    transform: translateX(calc(48px * var(--onb-dir)));
+  }
+}
+@keyframes onb-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-48px * var(--onb-dir)));
+  }
+}
+
+.onb-ico {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--c);
+}
+.onb-title {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4.2vw, 40px);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.onb-sub {
+  margin: 0 0 28px;
+  max-width: 560px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.onb-label {
+  margin: 24px 4px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.onb-fine {
+  margin: 18px 4px 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--text-3);
+}
+
+/* bottom bar: Back · progress dots · Next, like the setup wizard */
+.onb-bar {
+  position: relative;
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  /* lined up with the 640 px content column above it */
+  padding: 14px max(16px, calc((100% - 640px) / 2)) max(26px, 4vh);
+}
+.onb-back,
+.onb-next {
+  height: 50px;
+  padding: 0 26px;
+  border-radius: var(--r-pill);
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 150ms, transform 120ms, filter 150ms;
+}
+.onb-back {
+  justify-self: start;
+  color: var(--text);
+}
+.onb-back:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+.onb-next {
+  grid-column: 3;
+  justify-self: end;
+  min-width: 128px;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 6px 18px rgba(var(--accent-rgb), 0.28);
+}
+.onb-next:hover {
+  filter: brightness(1.07);
+}
+.onb-back:active,
+.onb-next:active {
+  transform: scale(0.97);
+}
+.onb-next:disabled {
+  opacity: 0.6;
+}
+.onb-dots {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  gap: 7px;
+}
+.onb-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text);
+  opacity: 0.2;
+  transition: opacity 200ms, transform 200ms;
+}
+.onb-dots i.on {
+  opacity: 0.85;
+  transform: scale(1.2);
+}
+
+/* ——— welcome ——— */
+.onb-p-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding-top: 24px;
+}
+.onb-hello {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: -6vh;
+}
+.onb-mark {
+  width: 84px;
+  height: 84px;
+  margin-bottom: 26px;
+  border-radius: 32%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, #7c8cff, #b06cff 60%, #ff7ab6);
+  box-shadow: 0 14px 34px rgba(140, 107, 255, 0.35);
+}
+.onb-welcome-title {
+  margin: 0 0 16px;
+  font-family: var(--font-display);
+  font-size: clamp(48px, 8vw, 84px);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.onb-p-welcome .onb-sub {
+  max-width: 440px;
+  font-size: 17px;
+}
+
+/* ——— option rows (language) and cards (Home screen) ——— */
+.onb-list,
+.onb-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.onb-opt,
+.onb-choice {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 64px;
+  padding: 12px 20px;
+  border-radius: var(--r-lg);
+  background: var(--onb-card);
+  text-align: start;
+  transition: box-shadow 160ms, background 160ms;
+}
+.onb-opt:hover,
+.onb-choice:hover {
+  background: color-mix(in srgb, var(--onb-card) 92%, var(--text));
+}
+.onb-opt.on,
+.onb-choice.on {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.onb-choice:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.onb-opt-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.onb-opt-text b {
+  font-size: 17px;
+  font-weight: 600;
+}
+.onb-opt-text span {
+  font-size: 14px;
+  color: var(--text-2);
+}
+.onb-radio {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--text-3);
+  transition: box-shadow 160ms;
+}
+.on > .onb-radio {
+  box-shadow: inset 0 0 0 6.5px var(--accent);
+}
+.onb-choice {
+  padding: 14px 20px 14px 14px;
+}
+[dir="rtl"] .onb-choice {
+  padding: 14px 14px 14px 20px;
+}
+.onb-choice-art {
+  flex: none;
+  width: 120px;
+  height: 76px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: var(--onb-bg);
+  overflow: hidden;
+}
+/* a fan of the person's favicons, each tilted a little */
+.onb-fan {
+  display: flex;
+  justify-content: center;
+}
+.onb-fan:empty::before {
+  content: "";
+  width: 40px;
+  height: 40px;
+  border-radius: 32%;
+  background: var(--surface-3);
+}
+.onb-fav {
+  width: 38px;
+  height: 38px;
+  margin-inline: -4px;
+  border-radius: 32%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
+  transform: rotate(calc((var(--i) - 2) * 7deg)) translateY(calc(max(var(--i) - 2, 2 - var(--i)) * 3px));
+}
+.onb-fav img {
+  width: 60%;
+  height: 60%;
+}
+/* the starter layout drawn as a mini Home screen: a widget and icons */
+.onb-starter {
+  display: grid;
+  grid-template-columns: repeat(4, 14px);
+  grid-auto-rows: 14px;
+  gap: 6px;
+}
+.onb-starter i {
+  border-radius: 32%;
+  background: var(--accent);
+  opacity: 0.55;
+}
+.onb-starter i:nth-child(3n) {
+  opacity: 0.3;
+}
+.onb-starter .w {
+  grid-column: span 2;
+  grid-row: span 2;
+  border-radius: 9px;
+  opacity: 0.85;
+}
+
+/* ——— light / dark ——— */
+.onb-themes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.onb-theme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 10px 16px;
+  border-radius: var(--r-lg);
+  background: var(--onb-card);
+  transition: box-shadow 160ms;
+}
+.onb-theme.on {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.onb-theme-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 40px;
+  text-align: center;
+}
+.onb-theme-label b {
+  font-size: 16px;
+  font-weight: 600;
+}
+.onb-theme-label span {
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+.onb-mock {
+  position: relative;
+  width: min(96px, 70%);
+  aspect-ratio: 9 / 16;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 0 0 3px var(--surface-3), 0 8px 20px rgba(0, 0, 0, 0.14);
+}
+.onb-mock-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6%;
+  padding: 18% 10% 8%;
+  background: #eef0f6;
+}
+.onb-mock-screen.dark {
+  background: #0c0c0f;
+}
+.onb-mock-screen.half {
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+.onb-mock-screen i {
+  display: block;
+  border-radius: 7px;
+  background: #ffffff;
+}
+.onb-mock-screen.dark i {
+  background: #2a2a30;
+}
+.onb-mock-screen .m-wg {
+  height: 17%;
+}
+.onb-mock-screen .m-wg.s {
+  width: 46%;
+}
+.onb-mock-screen .m-icons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+.onb-mock-screen .m-icons i {
+  aspect-ratio: 1;
+  border-radius: 32%;
+  background: var(--accent);
+  opacity: 0.7;
+}
+.onb-mock-screen .m-dock {
+  height: 9%;
+  margin-top: auto;
+  border-radius: 9px;
+  opacity: 0.85;
+}
+
+/* ——— wallpapers ——— */
+.onb-walls {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.onb-wall {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--divider);
+  transition: box-shadow 160ms, transform 160ms;
+}
+.onb-wall:hover {
+  transform: scale(1.03);
+}
+.onb-wall canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.onb-wall.on {
+  box-shadow: 0 0 0 3px var(--onb-bg), 0 0 0 6px var(--accent);
+}
+.onb-wall-check {
+  position: absolute;
+  inset-block-end: 8px;
+  inset-inline-end: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--on-accent);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 160ms, transform 200ms var(--ease-spring);
+}
+.onb-wall.on .onb-wall-check {
+  opacity: 1;
+  transform: none;
+}
+
+/* ——— search ——— */
+.onb-chips {
+  flex-wrap: wrap;
+  overflow: visible;
+  gap: 10px;
+}
+.onb .ou-chip {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14.5px;
+  background: var(--onb-card);
+  box-shadow: none;
+  cursor: pointer;
+}
+.onb .ou-chip.active {
+  background: var(--accent);
+}
+.onb-chip-fav {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+.onb .ou-chip.active .onb-chip-fav {
+  background: #fff;
+  padding: 1px;
+}
+
+/* ——— permissions and the last page: One UI cards on the wizard's background ——— */
+.onb .ou-card {
+  background: var(--onb-card);
+}
+.onb .ou-row-sub {
+  color: var(--text-2);
+}
+.onb:focus {
+  outline: none;
+}
+.onb .ou-row-ico[style] {
+  border-radius: 50%;
+}
+
+/* ——— lock screen style ——— */
+.onb-locks {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.onb-lock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px 12px;
+  border-radius: var(--r-md);
+  background: var(--onb-card);
+  font-size: 14px;
+  transition: box-shadow 160ms;
+}
+.onb-lock.on {
+  box-shadow: inset 0 0 0 2px var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.onb-lock-prev {
+  position: relative;
+  width: 100%;
+  max-width: 116px;
+  aspect-ratio: 9 / 15;
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding-top: 18%;
+  color: #fff;
+}
+.onb-lock-prev.light {
+  color: #16161a;
+}
+.onb-lock-prev canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.onb-lock-date {
+  position: relative;
+  font-size: 9.5px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+.onb-lock .set-lock-clock {
+  position: relative;
+  color: inherit;
+  font-size: 30px;
+}
+.onb-lock .set-lock-clock.c-stacked,
+.onb-lock .set-lock-clock.c-left {
+  font-size: 36px;
+}
+.onb-lock .set-lock-clock.c-left {
+  align-self: flex-start;
+  margin-inline-start: 10px;
+}
+.onb-lock-prev:has(.c-left) .onb-lock-date {
+  align-self: flex-start;
+  margin-inline-start: 10px;
+}
+
+/* ——— done ——— */
+.onb-tips .ou-row {
+  min-height: 72px;
+}
+.onb-tips .ou-row-sub {
+  white-space: normal;
+  line-height: 1.4;
+}
+.onb-tip-ico {
+  color: #fff;
+  border-radius: 50%;
+}
+
+@media (max-width: 620px) {
+  .onb-walls {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .onb-locks {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .onb-themes {
+    gap: 8px;
+  }
+  .onb-choice-art {
+    width: 84px;
+  }
+  .onb-back,
+  .onb-next {
+    padding: 0 18px;
+  }
+  .onb-next {
+    min-width: 100px;
+  }
+}
+@media (max-height: 640px) {
+  .onb-page {
+    padding-top: 24px;
+  }
+  .onb-ico {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 14px;
+  }
+}
+
+/* ——— What's new (One UI dialog) ——— */
+.ou-dialog.wn-dialog {
+  width: min(500px, 100%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.wn-dialog .ou-dialog-title {
+  margin-bottom: 4px;
+  font-size: 22px;
+}
+.wn-ver {
+  margin-bottom: 14px;
+  font-size: 14px;
+  color: var(--text-2);
+}
+.wn-list {
+  flex: 1;
+  min-height: 0;
+  max-height: min(56vh, 520px);
+  margin: 0 -12px;
+  padding: 0 2px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+}
+.wn-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  text-align: start;
+  color: var(--text);
+}
+button.wn-row:hover {
+  background: rgba(128, 128, 128, 0.08);
+}
+.wn-row .app-icon {
+  flex: none;
+  box-shadow: none;
+}
+.wn-ico {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--icon-radius);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--c);
+}
+.wn-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.wn-text b {
+  font-size: 15.5px;
+  font-weight: 600;
+}
+.wn-text span {
+  font-size: 13.5px;
+  line-height: 1.38;
+  color: var(--text-2);
+}

@@ -1,0 +1,578 @@
+/* Samsung Calculator (One UI): white page with light grey round keys, green operators, red C, green = key.
+   The keypad never mirrors in Arabic (numbers read left to right), the converter's labels do. */
+.calc-page,
+.calc-conv {
+  --calc-bg: #fcfcfc;
+  --calc-key: #eff0f1;
+  --calc-key-hover: #e6e7e9;
+  --calc-sci: #f5f6f7;
+  --calc-green: #138a40;
+  --calc-green-soft: rgba(19, 138, 64, 0.12);
+  --calc-eq: #17a04b;
+  --calc-red: #e0393e;
+}
+:root[data-theme="dark"] .calc-page,
+:root[data-theme="dark"] .calc-conv {
+  --calc-bg: #000;
+  --calc-key: #222224;
+  --calc-key-hover: #2c2c2f;
+  --calc-sci: #18181a;
+  --calc-green: #45cf72;
+  --calc-green-soft: rgba(69, 207, 114, 0.14);
+  --calc-eq: #1f9d50;
+  --calc-red: #ff6363;
+}
+.app-page.calc-page {
+  background: var(--calc-bg);
+}
+.calc-page .app-toolbar,
+.calc-page .app-toolbar.solid {
+  background: var(--calc-bg);
+}
+.app-page.calc-page .app-scroll {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.app-page.calc-page .app-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.calc {
+  direction: ltr;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px 14px;
+  /* the window can be any height: sizes below follow the calculator's height (cqh) so nothing is ever cut off */
+  container-type: size;
+}
+
+/* ——— display ——— */
+.calc-display {
+  position: relative;
+  flex: 36 1 0;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 4px 6px 12px;
+  overflow: hidden;
+  user-select: text;
+}
+.calc-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.calc-mode {
+  position: absolute;
+  top: 6px;
+  inset-inline-start: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--calc-green);
+}
+.calc-expr {
+  max-width: 100%;
+  font-family: var(--font-display);
+  font-size: clamp(26px, 7cqh, 50px);
+  font-weight: 300;
+  line-height: 1.12;
+  text-align: end;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  transition: font-size 160ms var(--ease), color 160ms;
+}
+.calc-expr sup {
+  font-size: 0.55em;
+}
+.calc-expr.small {
+  font-size: clamp(22px, 5.6cqh, 40px);
+}
+.calc-expr.xsmall {
+  font-size: clamp(18px, 4.3cqh, 30px);
+}
+.calc-expr.xxsmall {
+  font-size: clamp(16px, 3.4cqh, 24px);
+}
+.calc-expr.empty {
+  color: var(--text-3);
+}
+.calc-expr.result {
+  color: var(--calc-green);
+}
+.calc-preview {
+  min-height: 1.2em;
+  max-width: 100%;
+  font-family: var(--font-display);
+  font-size: clamp(16px, 3.8cqh, 27px);
+  font-weight: 300;
+  color: var(--text-3);
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+.calc-display.pop .calc-expr {
+  animation: calc-pop 280ms var(--ease);
+}
+@keyframes calc-pop {
+  from { transform: translateY(16px) scale(0.9); transform-origin: right bottom; opacity: 0.4; }
+}
+
+/* ——— toolbar: History, Unit converter, Scientific … ⌫ ——— */
+.calc-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 2px clamp(2px, 1cqh, 8px);
+  margin-bottom: clamp(6px, 1.6cqh, 12px);
+  border-bottom: 1px solid var(--divider);
+}
+.calc-tools-gap {
+  flex: 1;
+}
+.calc-tool {
+  color: var(--text-2);
+}
+.calc-tool.active {
+  color: var(--calc-green);
+}
+.calc-back-key {
+  color: var(--calc-green);
+}
+.calc-back-key:disabled {
+  opacity: 0.35;
+}
+
+/* ——— keypad ——— */
+.calc-pad {
+  position: relative;
+  flex: 64 1 0;
+  min-height: 0;
+  max-height: 640px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: clamp(4px, 1.4cqh, 10px) 10px;
+}
+.calc-pad.with-sci {
+  grid-template-columns: repeat(7, 1fr);
+  gap: clamp(4px, 1.1cqh, 8px) 6px;
+}
+.calc-key {
+  min-width: 0;
+  min-height: 0;
+  border-radius: var(--r-pill);
+  background: var(--calc-key);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: clamp(15px, 4.4cqh, 30px);
+  font-weight: 400;
+  display: grid;
+  place-items: center;
+  transition: transform 100ms, background 120ms, filter 120ms;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.calc-key:hover {
+  background: var(--calc-key-hover);
+}
+.calc-key:active,
+.calc-key.pressed {
+  transform: scale(0.93);
+  filter: brightness(0.92);
+}
+:root[data-theme="dark"] .calc-key:active,
+:root[data-theme="dark"] .calc-key.pressed {
+  filter: brightness(1.4);
+}
+.calc-key:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+.calc-key.op {
+  color: var(--calc-green);
+  font-size: clamp(17px, 5cqh, 34px);
+}
+.calc-key[data-k="()"] {
+  font-size: clamp(14px, 3.8cqh, 26px);
+  letter-spacing: 0.04em;
+}
+.calc-key.clear {
+  color: var(--calc-red);
+}
+.calc-key.eq {
+  background: var(--calc-eq);
+  color: #fff;
+  font-size: clamp(18px, 5.2cqh, 36px);
+}
+.calc-key.eq:hover {
+  background: var(--calc-eq);
+  filter: brightness(1.06);
+}
+.calc-key.sci {
+  background: var(--calc-sci);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: clamp(11px, 2.4cqh, 16px);
+  font-weight: 500;
+}
+.calc-key.sci:hover {
+  background: var(--calc-key);
+}
+.calc-lbl {
+  white-space: nowrap;
+}
+.calc-key.sci sup {
+  font-size: 0.68em;
+  line-height: 0;
+}
+.calc-key.sci.mode {
+  color: var(--calc-green);
+}
+.calc-key.sci.on {
+  background: var(--calc-green-soft);
+  color: var(--calc-green);
+}
+.calc-key.sci[data-k="2nd"] {
+  font-size: clamp(13px, 3cqh, 20px);
+}
+.calc-pad.with-sci .calc-key:not(.sci) {
+  font-size: clamp(14px, 3.6cqh, 24px);
+}
+.calc-pad.with-sci .calc-key.op {
+  font-size: clamp(15px, 4cqh, 27px);
+}
+.calc-pad.with-sci .calc-key.eq {
+  font-size: clamp(16px, 4.3cqh, 29px);
+}
+.calc-pad.with-sci .calc-key[data-k="()"] {
+  font-size: clamp(12px, 3cqh, 20px);
+}
+
+/* ——— History: over the keys left of the operator column, like Samsung's ——— */
+.calc-hist {
+  --cols: 4;
+  --gap: 10px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols) + var(--gap));
+  z-index: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-inline-end: 6px;
+  background: var(--calc-bg);
+  animation: calc-hist-in 220ms var(--ease);
+}
+@keyframes calc-hist-in {
+  from { opacity: 0; transform: translateY(12px); }
+}
+.calc-pad.with-sci .calc-hist {
+  --cols: 7;
+  --gap: 6px;
+}
+.calc.wide .calc-pad.with-sci .calc-hist {
+  --gap: 12px;
+}
+.calc-hist-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.calc-hist-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 10px 6px;
+  border-bottom: 1px solid var(--divider);
+}
+.calc-hist-expr,
+.calc-hist-res {
+  max-width: 100%;
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+.calc-hist-expr {
+  font-size: 18px;
+  color: var(--text-2);
+}
+.calc-hist-res {
+  font-family: var(--font-display);
+  font-size: 23px;
+  color: var(--calc-green);
+}
+.calc-hist-expr:hover,
+.calc-hist-res:hover {
+  background: var(--calc-key);
+}
+.calc-hist-clear {
+  align-self: center;
+  flex: none;
+}
+.calc-hist-empty {
+  flex: 1;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* ——— wide window (tablet): roomier keys ——— */
+.calc.wide {
+  padding: 0 24px 22px;
+}
+.calc.wide .calc-pad {
+  gap: 10px 12px;
+}
+.calc.wide .calc-key.sci {
+  font-size: clamp(12px, 2.6cqh, 18px);
+}
+.calc.wide .calc-expr {
+  font-size: clamp(30px, 8cqh, 60px);
+}
+
+/* ——— Unit converter ——— */
+.app-page.calc-conv-page .app-toolbar-title {
+  opacity: 1;
+  transform: none;
+}
+.calc-conv {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px 14px;
+  background: var(--calc-bg);
+  container-type: size;
+}
+.calc-cats {
+  flex: none;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 0 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--divider);
+}
+.calc-cat {
+  flex: none;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.calc-cat:hover {
+  background: var(--calc-key);
+}
+.calc-cat.active {
+  background: var(--calc-green-soft);
+  color: var(--calc-green);
+  font-weight: 600;
+}
+.calc-conv-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  gap: 2px;
+  padding: 8px 0 12px;
+  overflow-y: auto;
+}
+.calc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 4px;
+}
+.calc-unit {
+  align-self: flex-start;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  margin-inline-start: -10px;
+  border-radius: var(--r-xs);
+  font-size: 15px;
+  color: var(--text-2);
+}
+.calc-unit:hover {
+  background: var(--calc-key);
+}
+.calc-unit-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.calc-unit-sym {
+  color: var(--text-3);
+}
+.calc-unit-caret {
+  display: inline-flex;
+  color: var(--text-3);
+}
+.calc-conv-value {
+  width: 100%;
+  padding: 2px 0;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 5.5cqh, 38px);
+  font-weight: 300;
+  line-height: 1.15;
+  text-align: right;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.calc-conv-value.active {
+  color: var(--calc-green);
+}
+.calc-swap-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+}
+.calc-swap-row::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--divider);
+}
+.calc-swap {
+  background: var(--calc-key);
+  color: var(--calc-green);
+}
+.calc-unit-menu {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* Tip calculator */
+.calc-conv-main.tip {
+  justify-content: flex-start;
+}
+.calc-tip-field {
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 4px;
+  border-bottom: 1px solid var(--divider);
+}
+.calc-tip-label {
+  flex: none;
+  font-size: 15px;
+  color: var(--text-2);
+}
+.calc-tip-field .calc-conv-value {
+  flex: 1;
+  font-size: clamp(18px, 4.5cqh, 30px);
+}
+.calc-tip-chips {
+  padding: 8px 2px 4px;
+}
+.calc-tip-chips .ou-chip.active {
+  background: var(--calc-eq);
+  color: #fff;
+}
+.calc-tip-result {
+  margin-top: 10px;
+  padding: 6px 16px;
+  border-radius: var(--r-md);
+  background: var(--calc-sci);
+}
+.calc-tip-out {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 15px;
+  color: var(--text-2);
+}
+.calc-tip-out b {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 400;
+  color: var(--text);
+}
+.calc-tip-out.each b {
+  color: var(--calc-green);
+  font-weight: 500;
+}
+
+/* converter keypad: 3 columns of digits, ⌫ and C as tall keys at the end */
+.calc-conv-pad {
+  flex: none;
+  height: clamp(110px, 40cqh, 380px);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: clamp(4px, 1.4cqh, 10px) 10px;
+}
+.calc-conv-pad .calc-key {
+  font-size: clamp(15px, 4.2cqh, 27px);
+}
+.calc-conv-pad .calc-key.tall {
+  grid-column: 4;
+  grid-row: span 2;
+}
+.calc-conv-pad .calc-key.back {
+  grid-row: 1 / span 2;
+  color: var(--calc-green);
+}
+.calc-conv-pad .calc-key.clear {
+  grid-row: 3 / span 2;
+  color: var(--calc-red);
+}
+[dir="rtl"] .calc-conv-value {
+  text-align: left;
+}
+
+/* a short window: each unit sits on the line of its value, so both values stay in view */
+@container (max-height: 540px) {
+  .calc-field:not(.calc-tip-field) {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 4px;
+  }
+  .calc-field:not(.calc-tip-field) .calc-unit {
+    align-self: center;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  .calc-field:not(.calc-tip-field) .calc-conv-value {
+    flex: 1;
+    min-width: 0;
+  }
+  .calc-conv-main {
+    padding: 2px 0 6px;
+  }
+  .calc-cats {
+    padding-bottom: 6px;
+  }
+  .calc-tip-chips {
+    padding: 2px;
+  }
+  .calc-tip-result {
+    margin-top: 4px;
+    padding: 0 14px;
+  }
+  .calc-tip-out {
+    padding: 4px 0;
+  }
+}

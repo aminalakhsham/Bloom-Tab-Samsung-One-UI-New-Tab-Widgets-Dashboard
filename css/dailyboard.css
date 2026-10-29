@@ -1,0 +1,746 @@
+/* Daily Board (js/shell/dailyboard.js, dailyboard-ui.js): One UI's ambient full screen for Galaxy tablets.
+   It is always a dark screen, whatever the theme: the tokens are redefined here so Home screen widgets shown on
+   the Widgets page draw dark too. */
+.db {
+  --glass: rgba(255, 255, 255, 0.09);
+  --glass-strong: rgba(30, 30, 34, 0.9);
+  --glass-tile: rgba(255, 255, 255, 0.14);
+  --glass-text: #f5f5f7;
+  --glass-text-2: rgba(245, 245, 247, 0.62);
+  --text: #f4f4f6;
+  --text-2: #a6a7ae;
+  --text-3: #74757d;
+  --surface: #17171a;
+  --surface-2: #1f1f23;
+  --surface-3: #2a2a2f;
+  --divider: rgba(255, 255, 255, 0.08);
+  --db-warm: #ff7a5c;
+  color-scheme: dark;
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 500ms var(--ease);
+  outline: none;
+  user-select: none;
+}
+.db.show {
+  opacity: 1;
+}
+.db.closing {
+  pointer-events: none;
+}
+.db:not(.ui) {
+  cursor: none;
+}
+
+.db-track {
+  display: flex;
+  height: 100%;
+  transition: transform 560ms var(--ease);
+}
+.db-track.dragging,
+.db-track.instant {
+  transition: none;
+}
+.db-page {
+  position: relative;
+  flex: 0 0 100%;
+  height: 100%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+/* burn-in protection: the content drifts a few pixels every minute */
+.db-shift {
+  transform: translate(var(--sx, 0px), var(--sy, 0px));
+  transition: transform 3s var(--ease);
+}
+
+/* Night mode: dim red light, easy on the eyes in a dark room (grey shades multiplied by red) */
+.db.night .db-track,
+.db.night .db-music {
+  filter: grayscale(1) brightness(0.6);
+}
+.db.night::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: #ff3418;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* ——— clocks ——— */
+.db-digital {
+  display: flex;
+  align-items: baseline;
+  gap: 0.1em;
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+.db-digital.small {
+  font-size: min(15vh, 11vw);
+  font-weight: 300;
+}
+.db-digital.big {
+  font-size: min(38vh, 25vw);
+  font-weight: 200;
+}
+.db-digital.mini {
+  font-size: 40px;
+  font-weight: 300;
+}
+.db-ap {
+  font-size: 0.22em;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.db-ap:empty {
+  display: none;
+}
+.db-analog svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.db-analog.small {
+  width: min(24vh, 17vw);
+}
+.db-analog.big {
+  width: min(66vh, 42vw);
+}
+.db-analog.mini {
+  width: 66px;
+}
+.db-analog .face {
+  fill: rgba(255, 255, 255, 0.05);
+  stroke: rgba(255, 255, 255, 0.14);
+  stroke-width: 1;
+}
+.db-analog .tk line {
+  stroke: rgba(255, 255, 255, 0.32);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.db-analog .tk line.mj {
+  stroke: #fff;
+  stroke-width: 3.2;
+}
+.db-analog .hh,
+.db-analog .mm {
+  stroke: #fff;
+  stroke-linecap: round;
+}
+.db-analog .hh {
+  stroke-width: 7;
+}
+.db-analog .mm {
+  stroke-width: 4.5;
+}
+.db-analog .ss line {
+  stroke: var(--db-warm, #ff7a5c);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+.db-analog .cap {
+  fill: var(--db-warm, #ff7a5c);
+}
+
+/* ——— photo frame ——— */
+.db-bg {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
+.db-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.db-slide {
+  position: absolute;
+  inset: 0;
+  background: center / cover no-repeat;
+  opacity: 0;
+  transition: opacity 1.6s var(--ease);
+}
+.db-slide.on {
+  opacity: 1;
+  animation: db-kb 36s ease-in-out infinite alternate;
+}
+.db-slide.alt.on {
+  animation-name: db-kb2;
+}
+.db-slide.still.on {
+  animation: none;
+}
+@keyframes db-kb {
+  from {
+    transform: scale(1.02);
+  }
+  to {
+    transform: scale(1.1) translate(-1.5%, -1%);
+  }
+}
+@keyframes db-kb2 {
+  from {
+    transform: scale(1.1) translate(1.5%, 1%);
+  }
+  to {
+    transform: scale(1.02);
+  }
+}
+.db-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.12) 46%, rgba(0, 0, 0, 0) 70%);
+}
+.db-pinfo {
+  position: absolute;
+  inset-inline-start: 5vw;
+  inset-block-end: 9vh;
+  max-width: 60vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.4vh;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
+}
+.db-date {
+  font-size: min(3.4vh, 24px);
+  font-weight: 500;
+  opacity: 0.94;
+}
+.db-date.big {
+  font-size: min(4.4vh, 32px);
+  font-weight: 400;
+}
+.db-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.db-facts.center {
+  justify-content: center;
+}
+.db-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  max-width: min(46vw, 520px);
+  padding: 0 18px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(22px) saturate(1.4);
+  font-size: 15px;
+  text-shadow: none;
+  white-space: nowrap;
+}
+.db-chip b {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.db-chip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.75;
+}
+.db-wx-ico {
+  flex: none;
+  width: 26px;
+  height: 26px;
+}
+.db-ev-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* ——— clock ——— */
+.db-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3vh;
+  text-align: center;
+}
+.db-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.4vh;
+}
+.db-clockpage.analog .db-center {
+  flex-direction: row;
+  gap: 7vw;
+  text-align: start;
+}
+.db-clockpage.analog .db-side {
+  align-items: flex-start;
+}
+.db-clockpage.analog .db-facts {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* ——— calendar ——— */
+.db-cal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 6vw;
+  align-items: center;
+  width: min(1120px, 88vw);
+}
+.db-cal-left {
+  min-width: 0;
+}
+.db-cal-wd {
+  font-size: min(4vh, 30px);
+  font-weight: 600;
+  color: var(--db-warm);
+}
+.db-cal-num {
+  margin: 0.5vh 0 1vh;
+  font-family: var(--font-display);
+  font-size: min(30vh, 19vw);
+  font-weight: 200;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+.db-cal-evs {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6vh;
+  margin-top: 4.5vh;
+}
+.db-cal-ev {
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+}
+.db-cal-ev > i {
+  flex: none;
+  width: 4px;
+  border-radius: 2px;
+}
+.db-cal-ev-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.db-cal-ev-text b {
+  font-size: min(2.6vh, 18px);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.db-cal-ev-text span,
+.db-cal-none {
+  font-size: min(2.2vh, 15px);
+  opacity: 0.65;
+}
+.db-month-title {
+  margin-bottom: 2.4vh;
+  font-size: min(3vh, 22px);
+  font-weight: 600;
+}
+.db-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1.2vh 0;
+  text-align: center;
+  font-size: min(2.7vh, 20px);
+  font-variant-numeric: tabular-nums;
+}
+.db-mh {
+  font-size: 0.8em;
+  opacity: 0.5;
+}
+.db-md {
+  position: relative;
+  height: min(6vh, 46px);
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+.db-grid .sun {
+  color: var(--db-warm);
+}
+.db-md.today {
+  color: #000;
+  font-weight: 700;
+}
+.db-md.today::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  height: min(5.4vh, 42px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff;
+}
+.db-md.busy::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+}
+.db-md.today.busy::after {
+  background: #fff;
+}
+
+/* ——— widgets (display only: a click anywhere leaves the board) ——— */
+.db-wrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4vw;
+  width: min(1120px, 90vw);
+  height: min(70vh, 44vw);
+}
+.db-wslot {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+/* a widget hidden while a PIN guards the Lock screen behind the board */
+.db-wlocked {
+  display: grid;
+  place-items: center;
+}
+.db-wlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2vh;
+  padding: 4vh 3vw;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+.db-wlock b {
+  font-size: min(2.8vh, 20px);
+  font-weight: 600;
+}
+.db-wlock span:last-child {
+  font-size: min(2.1vh, 15px);
+  opacity: 0.7;
+}
+.db-wlock-ico {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+.db-wslot .wg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  transform-origin: center;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* ——— music, dots, hint, close ——— */
+.db-music {
+  position: absolute;
+  z-index: 2;
+  inset-inline-end: 4vw;
+  inset-block-end: 9vh;
+  width: min(420px, 84vw);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 14px;
+  border-radius: 30px;
+  background: rgba(30, 30, 34, 0.62);
+  backdrop-filter: blur(30px) saturate(1.5);
+  transition: opacity 300ms;
+}
+.db[data-page="calendar"] .db-music,
+.db[data-page="widgets"] .db-music {
+  opacity: 0;
+  pointer-events: none;
+}
+.db-music-art {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: center / cover no-repeat;
+  color: #fff;
+}
+.db-music-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.db-music-text b,
+.db-music-text span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.db-music-text b {
+  font-size: 15.5px;
+  font-weight: 600;
+}
+.db-music-text span {
+  font-size: 13px;
+  opacity: 0.7;
+}
+.db-mctl {
+  flex: none;
+  display: flex;
+  direction: ltr;
+}
+.db-mbtn {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.db-mbtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.db-dots {
+  position: absolute;
+  z-index: 2;
+  inset-inline: 0;
+  bottom: 2.6vh;
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  opacity: 0.45;
+  transition: opacity 300ms;
+}
+.db.ui .db-dots {
+  opacity: 1;
+}
+.db-dot {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+}
+.db-dot::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.4;
+  transition: opacity 200ms, transform 200ms;
+}
+.db-dot.on::before {
+  opacity: 1;
+  transform: scale(1.15);
+}
+.db-hint {
+  position: absolute;
+  z-index: 2;
+  top: 3.6vh;
+  left: 50%;
+  translate: -50% 0;
+  max-width: calc(100vw - 120px);
+  padding: 10px 18px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.13);
+  backdrop-filter: blur(20px);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  transition: opacity 700ms;
+}
+.db-hint.gone {
+  opacity: 0;
+}
+.db-close {
+  position: absolute;
+  z-index: 3;
+  top: 3vh;
+  inset-inline-end: 3vw;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 300ms;
+}
+.db.ui .db-close {
+  opacity: 1;
+}
+
+/* portrait or narrow windows: stack the halves */
+@media (max-aspect-ratio: 1/1) {
+  .db-cal {
+    grid-template-columns: 1fr;
+    gap: 4vh;
+  }
+  .db-cal-num {
+    font-size: min(18vh, 26vw);
+  }
+  .db-wrow {
+    grid-template-columns: 1fr;
+    height: 76vh;
+    width: 84vw;
+  }
+  .db-clockpage.analog .db-center {
+    flex-direction: column;
+    text-align: center;
+  }
+  .db-clockpage.analog .db-side,
+  .db-clockpage.analog .db-facts {
+    align-items: center;
+  }
+  .db-analog.big {
+    width: min(46vh, 76vw);
+  }
+  .db-pinfo {
+    max-width: 88vw;
+  }
+}
+
+/* ——— Settings › Daily Board ——— */
+.dbs-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 18px 20px;
+  text-align: center;
+}
+.dbs-prev {
+  position: relative;
+  width: min(320px, 100%);
+  aspect-ratio: 16 / 10;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  box-shadow: 0 0 0 4px var(--surface-3), 0 10px 26px rgba(0, 0, 0, 0.18);
+}
+.dbs-prev-bg {
+  position: absolute;
+  inset: 0;
+  background: center / cover no-repeat;
+}
+.dbs-prev-bg canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.dbs-prev-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent 60%);
+}
+.dbs-prev-info {
+  position: absolute;
+  inset-inline-start: 16px;
+  bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 11.5px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+.dbs-desc {
+  margin: 0;
+  max-width: 420px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+.dbs-start {
+  min-width: 160px;
+}
+.dbs-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.dbs-photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+}
+.dbs-photo {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  background: center / cover no-repeat var(--surface-3);
+}
+.dbs-photo-del {
+  position: absolute;
+  top: 5px;
+  inset-inline-end: 5px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+}
+.dbs-photo-add {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface-2);
+  color: var(--accent);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+.dbs-fonts {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+.dbs-fonts .ou-chip {
+  cursor: pointer;
+}

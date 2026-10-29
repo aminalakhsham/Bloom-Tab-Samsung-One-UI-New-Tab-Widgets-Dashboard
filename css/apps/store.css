@@ -1,0 +1,951 @@
+/* Galaxy Store for websites (js/store/ui.js, widget in js/apps/store.js). Like Galaxy Store, the pages are plain
+   white (black in dark mode) with content straight on them; grouped rows sit on light grey cards. */
+
+.gs-page {
+  --gs-bg: var(--surface);
+  --gs-card: var(--surface-2);
+  container-type: inline-size;
+  background: var(--gs-bg);
+}
+:root[data-theme="dark"] .gs-page {
+  --gs-bg: #000;
+  --gs-card: var(--surface);
+}
+.gs-page .app-toolbar.solid,
+.gs-page .app-toolbar.scrolled {
+  background: var(--gs-bg);
+}
+.gs-page .ou-card {
+  background: var(--gs-card);
+}
+.app-body.gs-body {
+  width: 100%;
+  max-width: 1040px;
+  margin-inline: auto;
+  padding: 6px 16px 112px;
+  gap: 24px;
+}
+/* the window's own handle strip matches the white page */
+:root:not([data-theme="dark"]) .app-win:has(.gs-page) {
+  background: var(--surface);
+}
+.gs-catpage .app-body.gs-body,
+.gs-detail .app-body.gs-body,
+.gs-mine .app-body.gs-body,
+.gs-wishpage .app-body.gs-body {
+  padding-bottom: 40px;
+}
+
+/* ——— bottom navigation (five tabs, so a little tighter than the kit's) ——— */
+.gs-nav {
+  max-width: calc(100% - 24px);
+}
+.gs-nav .ou-tab {
+  min-width: 62px;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+/* ——— sections ——— */
+.gs-sec {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gs-sec-h {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-inline-start: 4px;
+}
+.gs-sec-h h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.gs-more {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-2);
+}
+.gs-more:hover,
+.gs-textbtn:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+.gs-textbtn {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* ——— site icons (js/store/icon.js) ——— */
+.gs-ic {
+  --sz: 56px;
+  position: relative;
+  flex: none;
+  width: var(--sz);
+  height: var(--sz);
+  display: grid;
+  place-items: center;
+  border-radius: var(--icon-radius);
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+}
+.gs-ic.letter {
+  background: linear-gradient(145deg, hsl(var(--h) 76% 63%), hsl(calc(var(--h) + 22) 70% 46%));
+}
+.gs-ic.fav {
+  background: linear-gradient(160deg, hsl(var(--h) 70% 97%), hsl(var(--h) 52% 88%));
+}
+.gs-ic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 46%);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+}
+.gs-ic-letter {
+  font-family: var(--font-display);
+  font-size: calc(var(--sz) * 0.46);
+  font-weight: 500;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+.gs-ic img {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 56%;
+  height: 56%;
+  object-fit: contain;
+  opacity: 0;
+  pointer-events: none;
+}
+.gs-ic.fav img {
+  opacity: 1;
+}
+.gs-ic.fav .gs-ic-letter {
+  display: none;
+}
+
+/* ——— Discover: banners ——— */
+.gs-banner-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gs-banners {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border-radius: var(--r-lg);
+}
+.gs-banner {
+  position: relative;
+  height: 184px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  scroll-snap-align: center;
+  text-align: start;
+  color: #fff;
+  background:
+    radial-gradient(90% 120% at 92% 0%, color-mix(in srgb, var(--c) 45%, #fff) 0%, transparent 60%),
+    linear-gradient(135deg, var(--c) 10%, color-mix(in srgb, var(--c) 58%, #000) 100%);
+}
+.gs-banner::before {
+  /* soft rings, a nod to Galaxy Store's banner art */
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  inset-inline-end: -70px;
+  bottom: -120px;
+  border-radius: 50%;
+  border: 34px solid rgba(255, 255, 255, 0.08);
+}
+.gs-banner-text {
+  position: relative;
+  max-width: 64%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+.gs-banner-text small {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.86;
+}
+.gs-banner-text strong {
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.gs-banner-cat {
+  margin-top: 8px;
+  height: 26px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.gs-banner-art {
+  position: absolute;
+  top: 26px;
+  inset-inline-end: 22px;
+  display: flex;
+  align-items: center;
+}
+.gs-banner-art .gs-ic {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+.gs-banner-art .gs-ic:nth-child(1) {
+  transform: rotate(-9deg) translateY(14px);
+}
+.gs-banner-art .gs-ic:nth-child(2) {
+  z-index: 2;
+  margin-inline: -12px;
+  transform: scale(1.14);
+}
+.gs-banner-art .gs-ic:nth-child(3) {
+  transform: rotate(9deg) translateY(14px);
+}
+.gs-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.gs-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--text-3);
+  opacity: 0.45;
+  transition: width 200ms var(--ease), opacity 200ms;
+}
+.gs-dots span.on {
+  width: 18px;
+  opacity: 1;
+  background: var(--text-2);
+}
+
+/* ——— horizontal rows of tiles ——— */
+.gs-hrow {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 86px;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: -16px;
+  padding: 2px 16px 4px;
+  scroll-padding-inline: 16px;
+  scroll-snap-type: x proximity;
+}
+.gs-tile {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 2px 8px;
+  border-radius: var(--r-sm);
+  text-align: center;
+  scroll-snap-align: start;
+}
+.gs-tile:hover {
+  background: rgba(128, 128, 128, 0.08);
+}
+.gs-tile .gs-ic {
+  margin-bottom: 2px;
+}
+.gs-tile-name {
+  width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+.gs-tile-sub {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+.gs-tile-inst {
+  display: none;
+  color: var(--accent);
+  font-weight: 600;
+}
+.gs-tile.inst .gs-tile-cat {
+  display: none;
+}
+.gs-tile.inst .gs-tile-inst {
+  display: inline;
+}
+
+/* ——— rows (charts, categories, search, My apps) ——— */
+.gs-row {
+  position: relative;
+  min-width: 0;
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 6px;
+  border-radius: var(--r-md);
+  cursor: pointer;
+}
+.gs-row.static {
+  cursor: default;
+}
+.gs-row:not(.static):hover {
+  background: rgba(128, 128, 128, 0.07);
+}
+.gs-list {
+  display: flex;
+  flex-direction: column;
+}
+.gs-list > .gs-row + .gs-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  inset-inline: 72px 6px;
+  height: 1px;
+  background: var(--divider);
+}
+.gs-list > .gs-row:has(.gs-rank) + .gs-row::before {
+  inset-inline-start: 104px;
+}
+.gs-rank {
+  flex: none;
+  width: 18px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.gs-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.gs-row-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 15.5px;
+  font-weight: 500;
+}
+.gs-address .gs-row-name {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.gs-row-sub {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+
+/* Top websites on Discover: three rows a column, columns side by side (swipe for more) */
+.gs-cols {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(3, auto);
+  grid-auto-columns: calc(100% - 36px);
+  column-gap: 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: -16px;
+  padding-inline: 16px;
+  scroll-padding-inline: 16px;
+  scroll-snap-type: x mandatory;
+}
+.gs-cols .gs-row {
+  scroll-snap-align: start;
+  padding-inline: 2px;
+}
+
+/* ——— Install / Open ——— */
+.gs-get {
+  position: relative;
+  flex: none;
+  min-width: 76px;
+  height: 32px;
+  padding: 0 16px;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 160ms, color 160ms, transform 120ms;
+}
+.gs-get:hover {
+  filter: brightness(1.04);
+}
+.gs-get:active {
+  transform: scale(0.96);
+}
+.gs-get.open {
+  background: var(--gs-card, var(--surface-2));
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--divider);
+}
+.gs-get.busy {
+  pointer-events: none;
+}
+.gs-get.busy::before {
+  /* Galaxy Store's download progress, filling the button */
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 0;
+  background: rgba(var(--accent-rgb), 0.28);
+  animation: gs-fill 650ms var(--ease) forwards;
+}
+@keyframes gs-fill {
+  to {
+    width: 100%;
+  }
+}
+.gs-get.big {
+  width: 100%;
+  height: 46px;
+  font-size: 16px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.gs-get.big.open {
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: none;
+}
+.gs-get.big.busy::before {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ——— Today's pick ——— */
+.gs-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 18px 16px;
+  border-radius: var(--r-lg);
+  background: linear-gradient(155deg, hsl(var(--h) 85% 93%), var(--gs-card) 72%);
+  cursor: pointer;
+}
+:root[data-theme="dark"] .gs-pick {
+  background: linear-gradient(155deg, hsl(var(--h) 38% 20%), var(--gs-card) 72%);
+}
+.gs-pick-kick {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.gs-pick-date {
+  margin-inline-start: auto;
+  font-weight: 500;
+  color: var(--text-2);
+}
+.gs-pick-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.gs-pick-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gs-pick-name {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.gs-pick-sub {
+  font-size: 13px;
+  color: var(--text-2);
+}
+.gs-pick-desc {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+/* ——— Categories ——— */
+.gs-cats .ou-row-ico,
+.gs-badge {
+  border-radius: 50%;
+}
+.gs-badge {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.gs-count {
+  flex: none;
+  font-size: 14px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+.gs-cat-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 4px 0;
+}
+.gs-cat-head > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.gs-cat-head b {
+  font-size: 20px;
+  font-weight: 700;
+}
+.gs-cat-head small {
+  font-size: 13px;
+  color: var(--text-2);
+}
+.gs-catpage .ou-seg {
+  background: var(--gs-card);
+}
+.gs-catpage .ou-seg-btn.active {
+  background: var(--gs-bg);
+}
+
+/* ——— Top ——— */
+.gs-chips {
+  margin-inline: -16px;
+  padding: 2px 16px;
+}
+.gs-page .ou-chip:not(.active) {
+  background: var(--gs-bg);
+}
+
+/* ——— Search: the field takes the app bar ——— */
+.gs-tab-search .app-toolbar-title {
+  display: none;
+}
+.gs-search {
+  flex: 1;
+  height: 44px;
+  margin-inline-end: 6px;
+  background: var(--gs-card);
+}
+.gs-search input::-webkit-search-cancel-button {
+  display: none;
+}
+.gs-q-clear {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-2);
+}
+.gs-q-clear:hover {
+  background: rgba(128, 128, 128, 0.14);
+}
+.gs-results {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.gs-recent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.gs-recent-chip {
+  padding-inline: 14px 6px;
+  gap: 2px;
+}
+.gs-recent-q {
+  max-width: 220px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.gs-recent-x {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-3);
+}
+.gs-recent-x:hover {
+  background: rgba(128, 128, 128, 0.14);
+}
+.gs-popular {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(5, auto);
+  grid-template-columns: 1fr 1fr;
+  column-gap: 12px;
+}
+.gs-popular button {
+  width: 100%;
+  height: 44px;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: var(--r-xs);
+  text-align: start;
+  font-size: 15px;
+}
+.gs-popular button:hover {
+  background: rgba(128, 128, 128, 0.08);
+}
+.gs-popular b {
+  width: 18px;
+  flex: none;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.gs-popular span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.gs-empty {
+  padding-top: 80px;
+}
+
+/* ——— Menu ——— */
+.gs-me {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+}
+.gs-me-logo {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--icon-radius);
+  color: #fff;
+  background: linear-gradient(150deg, #ff6b93 0%, #ec2f6c 52%, #c0258f 100%);
+  box-shadow: 0 4px 14px rgba(236, 47, 108, 0.3);
+}
+.gs-me-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.gs-me-text b {
+  font-size: 19px;
+  font-weight: 700;
+}
+.gs-me-text small {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+/* ——— a site's page ——— */
+.gs-detail .app-toolbar.solid .app-toolbar-title {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.gs-detail.gs-scrolled .app-toolbar.solid .app-toolbar-title {
+  opacity: 1;
+  transform: none;
+}
+.gs-heart.on {
+  color: #f0457a;
+}
+.gs-hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 4px 2px 0;
+}
+.gs-hero .gs-ic {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+}
+.gs-hero-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+.gs-hero-name {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.gs-hero-dev {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+.gs-hero-dev:hover {
+  text-decoration: underline;
+}
+.gs-cat-chip {
+  height: 30px;
+  margin-top: 8px;
+  font-size: 13px;
+  background: var(--gs-card) !important;
+  box-shadow: none;
+}
+.gs-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-block: -6px;
+}
+.gs-stat {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  text-align: center;
+}
+.gs-stat + .gs-stat {
+  border-inline-start: 1px solid var(--divider);
+}
+.gs-stat b {
+  height: 26px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+.gs-stat small {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.gs-about p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+.gs-about p + p {
+  margin-top: 8px;
+  color: var(--text-2);
+}
+.gs-info {
+  padding-block: 6px;
+}
+.gs-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  font-size: 14.5px;
+}
+.gs-info-row + .gs-info-row {
+  border-top: 1px solid var(--divider);
+}
+.gs-info-row span {
+  color: var(--text-2);
+}
+.gs-info-row b {
+  min-width: 0;
+  font-weight: 500;
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
+/* ——— wider windows (maximized): two-column charts and lists, wider banners ——— */
+@container (min-width: 760px) {
+  .gs-banners {
+    grid-auto-columns: calc(50% - 6px);
+  }
+  .gs-cols {
+    grid-auto-columns: calc(33.3% - 10px);
+  }
+  .gs-list:not(.gs-address) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 24px;
+  }
+  .gs-list > .gs-row + .gs-row::before {
+    display: none;
+  }
+  .gs-list > .gs-row {
+    border-bottom: 1px solid var(--divider);
+    border-radius: 0;
+  }
+  .gs-hrow {
+    grid-auto-columns: 96px;
+  }
+  .gs-get.big {
+    width: auto;
+    min-width: 260px;
+    align-self: flex-start;
+  }
+}
+
+/* ——— Today's pick widget: sizes follow the widget box (2×2 or 4×2 cells, whatever the grid) ——— */
+.wg-store {
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: linear-gradient(140deg, hsl(var(--h, 330) 85% 70% / 0.32), transparent 65%), var(--glass);
+}
+.wg-store-logo {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: #fff;
+}
+.wg-store-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 4cqw, 18px);
+}
+.wg-store .gs-ic {
+  --sz: clamp(40px, 34cqh, 92px) !important;
+}
+.wg-store-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.wg-store-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: clamp(15px, 7cqh, 20px);
+  font-weight: 700;
+}
+.wg-store-cat {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12.5px;
+  color: var(--glass-text-2);
+}
+.wg-store-desc {
+  margin-top: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--glass-text-2);
+}
+.wg-store-btn {
+  flex: none;
+  height: 32px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.wg-store-btn.open {
+  background: var(--glass-tile);
+  color: var(--glass-text);
+}
+.w-s.wg-store .wg-store-main {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+}
+.w-s.wg-store .wg-store-text {
+  flex: none;
+  width: 100%;
+}
+.w-s .wg-store-btn {
+  width: 100%;
+}
+@container (max-height: 150px) {
+  .w-s.wg-store .wg-store-main {
+    flex-direction: row;
+    align-items: center;
+  }
+  .w-s.wg-store .wg-store-text {
+    flex: 1;
+    width: auto;
+  }
+  .wg-store .wg-store-cat {
+    display: none;
+  }
+}
+
+/* names keep their own direction (dir="auto", so "Disney+" stays "Disney+") but line up with the Arabic text */
+[dir="rtl"] .gs-row-name,
+[dir="rtl"] .wg-store-name {
+  text-align: right;
+}

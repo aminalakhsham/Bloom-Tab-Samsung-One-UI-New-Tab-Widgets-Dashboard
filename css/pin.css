@@ -1,0 +1,363 @@
+/* Screen lock PIN (js/shell/pin.js): Samsung's keypad on the Lock screen (white over the dimmed wallpaper) and in the
+   Settings pages (Set PIN, Confirm PIN). Round keys with letters under the digits, dots that fill, Delete · 0 · OK. */
+
+.pin {
+  --k: clamp(56px, 8.4vh, 78px);
+  --pin-fg: var(--text);
+  --pin-fg-2: var(--text-2);
+  --pin-key: var(--surface-2);
+  --pin-key-down: var(--surface-3);
+  --pin-err: #e5484d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--pin-fg);
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pin-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: min(420px, calc(100vw - 32px));
+  text-align: center;
+}
+.pin-badge {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  margin-bottom: 4px;
+}
+.pin-title {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+}
+.pin-sub {
+  min-height: 20px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--pin-fg-2);
+}
+.pin-sub.err {
+  color: var(--pin-err);
+  font-weight: 600;
+}
+.pin-sub.wait {
+  color: var(--pin-fg);
+  font-weight: 600;
+}
+.pin-dots {
+  height: 28px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-width: 120px;
+  border-bottom: 1.5px solid color-mix(in srgb, var(--pin-fg) 30%, transparent);
+  padding: 0 12px 10px;
+  box-sizing: content-box;
+}
+.pin-dots.fixed {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.pin-dots i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--pin-fg);
+  animation: pin-dot 180ms var(--ease);
+}
+.pin-dots.fixed i {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--pin-fg);
+  opacity: 0.75;
+  animation: none;
+}
+.pin-dots.fixed i.on {
+  background: var(--pin-fg);
+  opacity: 1;
+  animation: pin-dot 180ms var(--ease);
+}
+@keyframes pin-dot {
+  from {
+    transform: scale(0.4);
+  }
+}
+.pin.shake .pin-dots {
+  animation: pin-shake 460ms var(--ease);
+}
+@keyframes pin-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-14px); }
+  30% { transform: translateX(12px); }
+  45% { transform: translateX(-9px); }
+  60% { transform: translateX(6px); }
+  75% { transform: translateX(-3px); }
+}
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, var(--k));
+  gap: calc(var(--k) * 0.2) calc(var(--k) * 0.42);
+  justify-content: center;
+}
+.pin-key {
+  width: var(--k);
+  height: var(--k);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--pin-key);
+  color: var(--pin-fg);
+  transition: background 120ms, transform 120ms var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.pin-key b {
+  font-family: var(--font-display);
+  font-size: calc(var(--k) * 0.42);
+  font-weight: 300;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.pin-key small {
+  min-height: 12px;
+  margin-top: 2px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--pin-fg-2);
+}
+.pin-key:hover {
+  background: var(--pin-key-down);
+}
+.pin-key.down {
+  background: var(--pin-key-down);
+  transform: scale(0.94);
+}
+.pin-key:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.pin-fn {
+  background: transparent;
+}
+.pin-fn small {
+  display: none;
+}
+.pin-ok {
+  font-size: 17px;
+  font-weight: 700;
+}
+.pin-key:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.pin-key:disabled:hover {
+  background: transparent;
+}
+.pin-ok[hidden] {
+  display: flex;
+  visibility: hidden;
+}
+.pin.out .pin-pad {
+  opacity: 0.32;
+  pointer-events: none;
+  filter: grayscale(1);
+}
+.pin-foot {
+  width: calc(var(--k) * 3 + var(--k) * 0.84);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pin-link {
+  padding: 10px 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--pin-fg);
+  border-radius: var(--r-pill);
+}
+.pin-link:hover {
+  text-decoration: underline;
+}
+
+/* ——— on the Lock screen (the bouncer) ——— */
+#lock::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 12, 0.5);
+  backdrop-filter: blur(26px) saturate(1.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms var(--ease);
+}
+#lock.pin-open::before {
+  opacity: 1;
+}
+#lock.pin-open > :not(.pin) {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 200ms var(--ease);
+}
+#lock > .pin-lock {
+  --pin-fg: #fff;
+  --pin-fg-2: rgba(255, 255, 255, 0.7);
+  --pin-key: rgba(255, 255, 255, 0.1);
+  --pin-key-down: rgba(255, 255, 255, 0.3);
+  --pin-err: #ffb3b3;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  justify-content: center;
+  gap: clamp(18px, 4.6vh, 52px);
+  padding: max(5vh, 32px) 16px max(3vh, 18px);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 240ms var(--ease), transform 320ms var(--ease);
+  cursor: default;
+  touch-action: manipulation;
+}
+#lock > .pin-lock.show {
+  opacity: 1;
+  transform: none;
+}
+#lock.pin-ok > .pin-lock {
+  opacity: 0;
+  transform: scale(0.96);
+}
+.pin-lock .pin-key {
+  backdrop-filter: blur(8px);
+  text-shadow: none;
+}
+
+/* ——— in Settings (pushed page) ——— */
+.pin-page-wrap .app-body {
+  display: flex;
+  justify-content: center;
+}
+.pin-page {
+  --k: clamp(54px, 7.4vh, 70px);
+  --pin-key: var(--surface);
+  --pin-key-down: var(--surface-3);
+  width: 100%;
+  min-height: 100%;
+  padding: clamp(18px, 4vh, 40px) 16px 24px;
+  gap: clamp(20px, 4vh, 40px);
+}
+.pin-page .pin-title {
+  font-size: 22px;
+}
+/* like the blue Next key of Samsung Keyboard's number pad */
+.pin-page .pin-ok {
+  width: calc(var(--k) * 1.36);
+  height: calc(var(--k) * 0.7);
+  margin-inline-start: calc(var(--k) * -0.18);
+  align-self: center;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 15px;
+  white-space: nowrap;
+}
+.pin-page .pin-ok:hover {
+  background: var(--accent);
+  filter: brightness(1.08);
+}
+.pin-page .pin-ok:disabled {
+  background: var(--surface-3);
+  color: var(--text-3);
+  opacity: 1;
+}
+:root[data-theme="dark"] .pin-page {
+  --pin-err: #ff7b7f;
+}
+.pin-erase .ou-dialog-msg {
+  white-space: normal;
+}
+
+/* heads-up banners never show notification text over a Lock screen guarded by a PIN (they're in the list there) */
+body.locked.lk-private #headsup {
+  visibility: hidden;
+}
+
+@media (max-height: 620px) {
+  .pin-lock .pin-badge {
+    display: none;
+  }
+  #lock > .pin-lock {
+    gap: 14px;
+  }
+}
+
+/* ——— Settings › Lock screen › Reorder widgets ——— */
+.set-lw-item {
+  gap: 14px;
+  transition: transform 160ms var(--ease);
+}
+.set-lw-item.dragging {
+  position: relative;
+  z-index: 2;
+  transition: none;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+}
+.set-lw-n {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+.set-lw-grip {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-2);
+  cursor: grab;
+  touch-action: none;
+}
+.set-lw-grip:hover {
+  background: var(--surface-2);
+}
+.set-lw-item.dragging .set-lw-grip {
+  cursor: grabbing;
+}
+
+/* ——— the Chrome side panel's lock (js/sidepanel/gate.js) ——— */
+.sp-gate {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+}
+.sp-gate .pin {
+  --k: clamp(52px, 8vh, 68px);
+  min-height: 0;
+  justify-content: center;
+}
+.sp-gate .pin-badge {
+  background: var(--accent-soft);
+  color: var(--accent);
+}

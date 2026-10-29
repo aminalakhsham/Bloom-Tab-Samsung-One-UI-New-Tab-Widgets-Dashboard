@@ -1,0 +1,110 @@
+// City names for the World clock: popular cities that aren't time zone names (a time zone names only one city), and
+// the Arabic names of the cities (Intl has no API for city names; the country names come from Intl.DisplayNames).
+// Saved clocks keep their English name (`city`); cityName() shows it in the app's language.
+
+/** [English name, time zone, latitude, longitude, country code] */
+export const EXTRA = [
+  ['San Francisco', 'America/Los_Angeles', 37.8, -122.4, 'US'], ['Seattle', 'America/Los_Angeles', 47.6, -122.3, 'US'],
+  ['Las Vegas', 'America/Los_Angeles', 36.2, -115.1, 'US'], ['San Diego', 'America/Los_Angeles', 32.7, -117.2, 'US'],
+  ['Washington', 'America/New_York', 38.9, -77, 'US'], ['Boston', 'America/New_York', 42.4, -71.1, 'US'],
+  ['Miami', 'America/New_York', 25.8, -80.2, 'US'], ['Atlanta', 'America/New_York', 33.7, -84.4, 'US'],
+  ['Houston', 'America/Chicago', 29.8, -95.4, 'US'], ['Dallas', 'America/Chicago', 32.8, -96.8, 'US'],
+  ['Montreal', 'America/Toronto', 45.5, -73.6, 'CA'], ['Ottawa', 'America/Toronto', 45.4, -75.7, 'CA'],
+  ['Rio de Janeiro', 'America/Sao_Paulo', -22.9, -43.2, 'BR'], ['Brasília', 'America/Sao_Paulo', -15.8, -47.9, 'BR'],
+  ['Barcelona', 'Europe/Madrid', 41.4, 2.2, 'ES'], ['Milan', 'Europe/Rome', 45.5, 9.2, 'IT'], ['Venice', 'Europe/Rome', 45.4, 12.3, 'IT'],
+  ['Munich', 'Europe/Berlin', 48.1, 11.6, 'DE'], ['Frankfurt', 'Europe/Berlin', 50.1, 8.7, 'DE'], ['Hamburg', 'Europe/Berlin', 53.6, 10, 'DE'],
+  ['Geneva', 'Europe/Zurich', 46.2, 6.1, 'CH'], ['Lyon', 'Europe/Paris', 45.8, 4.8, 'FR'], ['Manchester', 'Europe/London', 53.5, -2.2, 'GB'],
+  ['Edinburgh', 'Europe/London', 56, -3.2, 'GB'], ['Ankara', 'Europe/Istanbul', 39.9, 32.9, 'TR'], ['Abu Dhabi', 'Asia/Dubai', 24.5, 54.4, 'AE'],
+  ['Sharjah', 'Asia/Dubai', 25.3, 55.4, 'AE'], ['Mecca', 'Asia/Riyadh', 21.4, 39.8, 'SA'], ['Medina', 'Asia/Riyadh', 24.5, 39.6, 'SA'],
+  ['Jeddah', 'Asia/Riyadh', 21.5, 39.2, 'SA'], ['Dammam', 'Asia/Riyadh', 26.4, 50.1, 'SA'], ['Doha', 'Asia/Qatar', 25.3, 51.5, 'QA'],
+  ['Manama', 'Asia/Bahrain', 26.2, 50.6, 'BH'], ['Kuwait City', 'Asia/Kuwait', 29.4, 48, 'KW'], ['Basra', 'Asia/Baghdad', 30.5, 47.8, 'IQ'],
+  ['Erbil', 'Asia/Baghdad', 36.2, 44, 'IQ'], ['Aleppo', 'Asia/Damascus', 36.2, 37.2, 'SY'], ['Alexandria', 'Africa/Cairo', 31.2, 29.9, 'EG'],
+  ['Giza', 'Africa/Cairo', 30, 31.2, 'EG'], ['Luxor', 'Africa/Cairo', 25.7, 32.6, 'EG'], ['Marrakesh', 'Africa/Casablanca', 31.6, -8, 'MA'],
+  ['Rabat', 'Africa/Casablanca', 34, -6.8, 'MA'], ['Fez', 'Africa/Casablanca', 34, -5, 'MA'], ['Oran', 'Africa/Algiers', 35.7, -0.6, 'DZ'],
+  ['Benghazi', 'Africa/Tripoli', 32.1, 20.1, 'LY'], ['Cape Town', 'Africa/Johannesburg', -33.9, 18.4, 'ZA'], ['Abuja', 'Africa/Lagos', 9.1, 7.5, 'NG'],
+  ['Mumbai', 'Asia/Kolkata', 19.1, 72.9, 'IN'], ['Delhi', 'Asia/Kolkata', 28.6, 77.2, 'IN'], ['Bengaluru', 'Asia/Kolkata', 13, 77.6, 'IN'],
+  ['Lahore', 'Asia/Karachi', 31.5, 74.3, 'PK'], ['Islamabad', 'Asia/Karachi', 33.7, 73, 'PK'], ['Beijing', 'Asia/Shanghai', 39.9, 116.4, 'CN'],
+  ['Shenzhen', 'Asia/Shanghai', 22.5, 114.1, 'CN'], ['Osaka', 'Asia/Tokyo', 34.7, 135.5, 'JP'], ['Kyoto', 'Asia/Tokyo', 35, 135.8, 'JP'],
+  ['Busan', 'Asia/Seoul', 35.2, 129.1, 'KR'], ['Hanoi', 'Asia/Bangkok', 21, 105.8, 'VN'], ['Bali', 'Asia/Makassar', -8.4, 115.2, 'ID'],
+  ['Canberra', 'Australia/Sydney', -35.3, 149.1, 'AU'], ['Wellington', 'Pacific/Auckland', -41.3, 174.8, 'NZ'],
+];
+
+/** Arabic names by English name (time zone cities with underscores turned into spaces, plus EXTRA). */
+export const AR = {
+  // Africa
+  Abidjan: 'أبيدجان', Accra: 'أكرا', 'Addis Ababa': 'أديس أبابا', Algiers: 'الجزائر', Asmara: 'أسمرة', Bamako: 'باماكو', Bangui: 'بانغي',
+  Banjul: 'بانجول', Bissau: 'بيساو', Blantyre: 'بلانتاير', Brazzaville: 'برازافيل', Bujumbura: 'بوجمبورا', Cairo: 'القاهرة',
+  Casablanca: 'الدار البيضاء', Ceuta: 'سبتة', Conakry: 'كوناكري', Dakar: 'داكار', 'Dar es Salaam': 'دار السلام', Djibouti: 'جيبوتي',
+  Douala: 'دوالا', 'El Aaiun': 'العيون', Freetown: 'فريتاون', Gaborone: 'غابورون', Harare: 'هراري', Johannesburg: 'جوهانسبرغ',
+  Juba: 'جوبا', Kampala: 'كمبالا', Khartoum: 'الخرطوم', Kigali: 'كيغالي', Kinshasa: 'كينشاسا', Lagos: 'لاغوس', Libreville: 'ليبرفيل',
+  Lome: 'لومي', Luanda: 'لواندا', Lubumbashi: 'لوبومباشي', Lusaka: 'لوساكا', Malabo: 'مالابو', Maputo: 'مابوتو', Maseru: 'ماسيرو',
+  Mbabane: 'مباباني', Mogadishu: 'مقديشو', Monrovia: 'مونروفيا', Nairobi: 'نيروبي', Ndjamena: 'نجامينا', Niamey: 'نيامي',
+  Nouakchott: 'نواكشوط', Ouagadougou: 'واغادوغو', 'Porto-Novo': 'بورتو نوفو', 'Sao Tome': 'ساو تومي', Tripoli: 'طرابلس', Tunis: 'تونس',
+  Windhoek: 'ويندهوك', 'Cape Town': 'كيب تاون', Abuja: 'أبوجا', Alexandria: 'الإسكندرية', Giza: 'الجيزة', Luxor: 'الأقصر',
+  Marrakesh: 'مراكش', Rabat: 'الرباط', Fez: 'فاس', Oran: 'وهران', Benghazi: 'بنغازي',
+  // Americas
+  Adak: 'أداك', Anchorage: 'أنكوريج', Anguilla: 'أنغويلا', Antigua: 'أنتيغوا', 'Buenos Aires': 'بوينس آيرس', Cordoba: 'قرطبة',
+  Aruba: 'أروبا', Asuncion: 'أسونسيون', Bahia: 'باهيا', Barbados: 'باربادوس', Belem: 'بيليم', Belize: 'بليز', Bogota: 'بوغوتا',
+  Boise: 'بويسي', Cancun: 'كانكون', Caracas: 'كاراكاس', Cayenne: 'كايين', Cayman: 'كايمان', Chicago: 'شيكاغو', Chihuahua: 'تشيواوا',
+  'Costa Rica': 'كوستاريكا', Curacao: 'كوراساو', Denver: 'دنفر', Detroit: 'ديترويت', Dominica: 'دومينيكا', Edmonton: 'إدمونتون',
+  'El Salvador': 'السلفادور', Fortaleza: 'فورتاليزا', Godthab: 'نوك', Nuuk: 'نوك', 'Grand Turk': 'غراند ترك', Grenada: 'غرينادا',
+  Guadeloupe: 'غوادلوب', Guatemala: 'غواتيمالا', Guayaquil: 'غواياكيل', Guyana: 'غيانا', Halifax: 'هاليفاكس', Havana: 'هافانا',
+  Hermosillo: 'إرموسيو', Indianapolis: 'إنديانابوليس', Jamaica: 'جامايكا', Juneau: 'جونو', Louisville: 'لويفيل', 'La Paz': 'لاباز',
+  Lima: 'ليما', 'Los Angeles': 'لوس أنجلوس', Managua: 'ماناغوا', Manaus: 'ماناوس', Martinique: 'مارتينيك', Mazatlan: 'مازاتلان',
+  Merida: 'ميريدا', 'Mexico City': 'مكسيكو سيتي', Miquelon: 'ميكلون', Moncton: 'مونكتون', Monterrey: 'مونتيري', Montevideo: 'مونتيفيديو',
+  Montserrat: 'مونتسيرات', Nassau: 'ناساو', 'New York': 'نيويورك', Noronha: 'نورونيا', Panama: 'بنما', Paramaribo: 'باراماريبو',
+  Phoenix: 'فينكس', 'Port-au-Prince': 'بورت أو برنس', 'Port of Spain': 'بورت أوف سبين', 'Puerto Rico': 'بورتوريكو', Recife: 'ريسيفي',
+  Regina: 'ريجاينا', Santiago: 'سانتياغو', 'Santo Domingo': 'سانتو دومينغو', 'Sao Paulo': 'ساو باولو', 'St Johns': 'سانت جونز',
+  'St Kitts': 'سانت كيتس', 'St Lucia': 'سانت لوسيا', 'St Thomas': 'سانت توماس', 'St Vincent': 'سانت فنسنت', Tegucigalpa: 'تيغوسيغالبا',
+  Tijuana: 'تيخوانا', Toronto: 'تورنتو', Vancouver: 'فانكوفر', Whitehorse: 'وايت هورس', Winnipeg: 'وينيبيغ', Ushuaia: 'أوشوايا',
+  Mendoza: 'مندوزا', 'Punta Arenas': 'بونتا أريناس', 'San Francisco': 'سان فرانسيسكو', Seattle: 'سياتل', 'Las Vegas': 'لاس فيغاس',
+  'San Diego': 'سان دييغو', Washington: 'واشنطن', Boston: 'بوسطن', Miami: 'ميامي', Atlanta: 'أتلانتا', Houston: 'هيوستن', Dallas: 'دالاس',
+  Montreal: 'مونتريال', Ottawa: 'أوتاوا', 'Rio de Janeiro': 'ريو دي جانيرو', Brasília: 'برازيليا', Honolulu: 'هونولولو',
+  // Antarctica, Arctic
+  McMurdo: 'ماكموردو', Longyearbyen: 'لونغيربين', Casey: 'كيسي', Davis: 'ديفيس', Mawson: 'ماوسون', Palmer: 'بالمر', Rothera: 'روثيرا', Vostok: 'فوستوك',
+  // Asia
+  Aden: 'عدن', Almaty: 'ألماتي', Amman: 'عمّان', Anadyr: 'أنادير', Aqtau: 'أكتاو', Aqtobe: 'أكتوبي', Ashgabat: 'عشق آباد', Atyrau: 'أتيراو',
+  Baghdad: 'بغداد', Bahrain: 'البحرين', Baku: 'باكو', Bangkok: 'بانكوك', Barnaul: 'بارناول', Beirut: 'بيروت', Bishkek: 'بيشكيك',
+  Brunei: 'بروناي', Calcutta: 'كولكاتا', Kolkata: 'كولكاتا', Chita: 'تشيتا', Colombo: 'كولومبو', Damascus: 'دمشق', Dhaka: 'دكا',
+  Dili: 'ديلي', Dubai: 'دبي', Dushanbe: 'دوشنبه', Famagusta: 'فاماغوستا', Gaza: 'غزة', Hebron: 'الخليل', 'Ho Chi Minh': 'هو تشي منه',
+  Saigon: 'هو تشي منه', 'Hong Kong': 'هونغ كونغ', Hovd: 'خوفد', Irkutsk: 'إيركوتسك', Jakarta: 'جاكرتا', Jayapura: 'جايابورا',
+  Jerusalem: 'القدس', Kabul: 'كابول', Kamchatka: 'كامتشاتكا', Karachi: 'كراتشي', Kathmandu: 'كاتماندو', Katmandu: 'كاتماندو',
+  Krasnoyarsk: 'كراسنويارسك', 'Kuala Lumpur': 'كوالالمبور', Kuching: 'كوتشينغ', Kuwait: 'الكويت', Macau: 'ماكاو', Magadan: 'ماغادان',
+  Makassar: 'ماكاسار', Manila: 'مانيلا', Muscat: 'مسقط', Nicosia: 'نيقوسيا', Novokuznetsk: 'نوفوكوزنتسك', Novosibirsk: 'نوفوسيبيرسك',
+  Omsk: 'أومسك', Oral: 'أورال', 'Phnom Penh': 'بنوم بنه', Pontianak: 'بونتياناك', Pyongyang: 'بيونغ يانغ', Qatar: 'قطر',
+  Qostanay: 'كوستاناي', Qyzylorda: 'كيزيلوردا', Rangoon: 'يانغون', Yangon: 'يانغون', Riyadh: 'الرياض', Sakhalin: 'سخالين',
+  Samarkand: 'سمرقند', Seoul: 'سول', Shanghai: 'شنغهاي', Singapore: 'سنغافورة', Taipei: 'تايبيه', Tashkent: 'طشقند', Tbilisi: 'تبليسي',
+  Tehran: 'طهران', Thimphu: 'تيمفو', Tokyo: 'طوكيو', Tomsk: 'تومسك', Ulaanbaatar: 'أولان باتور', Urumqi: 'أورومتشي', Vientiane: 'فيينتيان',
+  Vladivostok: 'فلاديفوستوك', Yakutsk: 'ياكوتسك', Yekaterinburg: 'يكاترينبورغ', Yerevan: 'يريفان', 'Abu Dhabi': 'أبوظبي', Sharjah: 'الشارقة',
+  Mecca: 'مكة المكرمة', Medina: 'المدينة المنورة', Jeddah: 'جدة', Dammam: 'الدمام', Doha: 'الدوحة', Manama: 'المنامة',
+  'Kuwait City': 'مدينة الكويت', Basra: 'البصرة', Erbil: 'أربيل', Aleppo: 'حلب', Mumbai: 'مومباي', Delhi: 'دلهي', Bengaluru: 'بنغالور',
+  Lahore: 'لاهور', Islamabad: 'إسلام آباد', Beijing: 'بكين', Shenzhen: 'شنتشن', Osaka: 'أوساكا', Kyoto: 'كيوتو', Busan: 'بوسان',
+  Hanoi: 'هانوي', Bali: 'بالي',
+  // Atlantic, Indian Ocean
+  Azores: 'الأزور', Bermuda: 'برمودا', Canary: 'جزر الكناري', 'Cape Verde': 'الرأس الأخضر', Faroe: 'فارو', Faeroe: 'فارو', Madeira: 'ماديرا',
+  Reykjavik: 'ريكيافيك', 'South Georgia': 'جورجيا الجنوبية', 'St Helena': 'سانت هيلينا', Stanley: 'ستانلي', Antananarivo: 'أنتاناناريفو',
+  Chagos: 'تشاغوس', Christmas: 'جزيرة كريسماس', Cocos: 'جزر كوكوس', Comoro: 'جزر القمر', Kerguelen: 'كيرغولين', Mahe: 'ماهي',
+  Maldives: 'جزر المالديف', Mauritius: 'موريشيوس', Mayotte: 'مايوت', Reunion: 'لا ريونيون',
+  // Australia, Pacific
+  Adelaide: 'أديلايد', Brisbane: 'بريزبان', 'Broken Hill': 'بروكن هيل', Darwin: 'داروين', Hobart: 'هوبارت', 'Lord Howe': 'لورد هاو',
+  Melbourne: 'ملبورن', Perth: 'بيرث', Sydney: 'سيدني', Canberra: 'كانبرا', Apia: 'آبيا', Auckland: 'أوكلاند', Wellington: 'ولينغتون',
+  Chatham: 'تشاتام', Easter: 'جزيرة الفصح', Efate: 'إيفاتي', Fiji: 'فيجي', Funafuti: 'فونافوتي', Galapagos: 'غالاباغوس', Guam: 'غوام',
+  Kiritimati: 'كيريتيماتي', Majuro: 'ماجورو', Marquesas: 'جزر الماركيز', Midway: 'ميدواي', Nauru: 'ناورو', Niue: 'نيوي', Norfolk: 'نورفولك',
+  Noumea: 'نوميا', 'Pago Pago': 'باغو باغو', Palau: 'بالاو', Pitcairn: 'بيتكيرن', 'Port Moresby': 'بورت مورسبي', Rarotonga: 'راروتونغا',
+  Saipan: 'سايبان', Tahiti: 'تاهيتي', Tarawa: 'تاراوا', Tongatapu: 'تونغاتابو', Wake: 'ويك', Wallis: 'واليس',
+  // Europe
+  Amsterdam: 'أمستردام', Andorra: 'أندورا', Astrakhan: 'أستراخان', Athens: 'أثينا', Belgrade: 'بلغراد', Berlin: 'برلين',
+  Bratislava: 'براتيسلافا', Brussels: 'بروكسل', Bucharest: 'بوخارست', Budapest: 'بودابست', Chisinau: 'كيشيناو', Copenhagen: 'كوبنهاغن',
+  Dublin: 'دبلن', Gibraltar: 'جبل طارق', Guernsey: 'غيرنزي', Helsinki: 'هلسنكي', 'Isle of Man': 'جزيرة مان', Istanbul: 'إسطنبول',
+  Jersey: 'جيرسي', Kaliningrad: 'كالينينغراد', Kiev: 'كييف', Kyiv: 'كييف', Kirov: 'كيروف', Lisbon: 'لشبونة', Ljubljana: 'ليوبليانا',
+  London: 'لندن', Luxembourg: 'لوكسمبورغ', Madrid: 'مدريد', Malta: 'مالطا', Mariehamn: 'ماريهامن', Minsk: 'مينسك', Monaco: 'موناكو',
+  Moscow: 'موسكو', Oslo: 'أوسلو', Paris: 'باريس', Podgorica: 'بودغوريتسا', Prague: 'براغ', Riga: 'ريغا', Rome: 'روما', Samara: 'سامارا',
+  'San Marino': 'سان مارينو', Sarajevo: 'سراييفو', Saratov: 'ساراتوف', Simferopol: 'سيمفيروبول', Skopje: 'سكوبيه', Sofia: 'صوفيا',
+  Stockholm: 'ستوكهولم', Tallinn: 'تالين', Tirane: 'تيرانا', Ulyanovsk: 'أوليانوفسك', Vaduz: 'فادوز', Vatican: 'الفاتيكان', Vienna: 'فيينا',
+  Vilnius: 'فيلنيوس', Volgograd: 'فولغوغراد', Warsaw: 'وارسو', Zagreb: 'زغرب', Zurich: 'زيورخ', Barcelona: 'برشلونة', Milan: 'ميلانو',
+  Venice: 'البندقية', Munich: 'ميونخ', Frankfurt: 'فرانكفورت', Hamburg: 'هامبورغ', Geneva: 'جنيف', Lyon: 'ليون', Manchester: 'مانشستر',
+  Edinburgh: 'إدنبرة', Ankara: 'أنقرة',
+};
+
+/** A clock's city name in the app's language ('ar' looks it up, anything else is the English name). */
+export const cityIn = (city, lang) => (lang === 'ar' && AR[city]) || city;

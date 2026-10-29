@@ -1,0 +1,1017 @@
+/* Reminder (Samsung Reminder, One UI) */
+.rem-body {
+  padding-bottom: 120px !important;
+}
+.rem-edit-page .rem-body,
+.rem-cats-page .rem-body,
+.rem-search-page .rem-body {
+  padding-bottom: 28px !important;
+}
+.rem-page .app-body {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+/* ——— main page: tiles ——— */
+.rem-cats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.rem-cat {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 10px 8px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  text-align: start;
+  transition: transform 150ms var(--ease), background 150ms;
+}
+.rem-cat:hover {
+  background: color-mix(in srgb, var(--surface) 94%, var(--text));
+}
+.rem-cat:active {
+  transform: scale(0.98);
+}
+.rem-cat:focus-visible {
+  outline: 2px solid var(--c);
+  outline-offset: 2px;
+}
+.rem-cat-ico {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--c);
+  color: #fff;
+}
+.rem-cat-count {
+  justify-self: end;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1;
+}
+.rem-cat-label {
+  grid-column: 1 / -1;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+/* ——— My categories ——— */
+.rem-subhead {
+  margin-top: 8px;
+}
+.rem-badge {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--c, var(--accent));
+  color: #fff;
+}
+.rem-badge.add {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.rem-catrow {
+  min-height: 58px;
+}
+.rem-catrow-n {
+  color: var(--text-2);
+  font-size: 15px;
+  min-width: 2ch;
+  text-align: end;
+}
+.rem-addcat .ou-row-title {
+  color: var(--accent);
+  font-weight: 600;
+}
+.rem-mycats > .ou-row + .ou-row::before {
+  inset-inline-start: 66px;
+}
+
+/* ——— lists ——— */
+.rem-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.rem-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rem-group.empty {
+  display: none;
+}
+.rem-dragging .rem-group.empty {
+  display: flex;
+}
+.rem-group.empty .rem-glist {
+  min-height: 52px;
+  border: 2px dashed var(--divider);
+  background: transparent;
+}
+.rem-ghead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 22px 0;
+}
+.rem-group.overdue .rem-ghead {
+  color: #e5484d;
+}
+.rem-gcount {
+  color: var(--text-3);
+  font-weight: 500;
+}
+.rem-gdot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.rem-card {
+  padding: 0;
+}
+.rem-empty {
+  padding: 48px 24px;
+}
+.rem-empty small {
+  max-width: 300px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--text-3);
+}
+
+.rem-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 13px 18px;
+  outline: none;
+  background: var(--surface);
+}
+.rem-card > .rem-item {
+  border-radius: 0;
+}
+.rem-item.clickable {
+  cursor: pointer;
+}
+.rem-item.clickable:hover,
+.rem-item.clickable:focus-visible {
+  background: color-mix(in srgb, var(--surface) 94%, var(--text));
+}
+.rem-card > .rem-item:first-child {
+  border-start-start-radius: var(--r-lg);
+  border-start-end-radius: var(--r-lg);
+}
+.rem-card > .rem-item:last-child {
+  border-end-start-radius: var(--r-lg);
+  border-end-end-radius: var(--r-lg);
+}
+.rem-card > .rem-item + .rem-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  inset-inline: 56px 18px;
+  height: 1px;
+  background: var(--divider);
+}
+.rem-check {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: transparent;
+  box-shadow: inset 0 0 0 2px var(--text-3);
+  transition: background 200ms, box-shadow 200ms, color 200ms, transform 200ms var(--ease-spring);
+}
+.rem-check.important {
+  box-shadow: inset 0 0 0 2px #ff9500;
+}
+.rem-check:hover {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.rem-check:active {
+  transform: scale(0.85);
+}
+.rem-item.done .rem-check,
+.rem-check.done {
+  background: var(--accent);
+  box-shadow: none;
+  color: #fff;
+}
+.rem-check.small {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+}
+.rem-item-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.rem-item-title {
+  font-size: 16px;
+  line-height: 1.35;
+  word-break: break-word;
+  transition: color 200ms;
+}
+.rem-item.done .rem-item-title {
+  color: var(--text-3);
+  text-decoration: line-through;
+}
+.rem-item.anim {
+  animation: rem-done 380ms var(--ease);
+}
+@keyframes rem-done {
+  50% { transform: scale(0.985); }
+}
+.rem-item.flash {
+  animation: rem-flash 1.2s var(--ease);
+}
+@keyframes rem-flash {
+  0%, 30% { background: var(--accent-soft); }
+}
+.rem-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+.rem-item-due {
+  font-size: 13px;
+  color: var(--accent);
+}
+.rem-item-due.overdue {
+  color: #e5484d;
+}
+.rem-item.done .rem-item-due {
+  color: var(--text-3);
+}
+.rem-mi {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--text-3);
+}
+.rem-item-cat {
+  gap: 5px;
+  color: var(--text-2);
+}
+.rem-item-notes {
+  font-size: 13px;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rem-item mark,
+.rem-search-page mark {
+  background: color-mix(in srgb, var(--accent) 28%, transparent);
+  color: inherit;
+  border-radius: 3px;
+}
+.rem-star {
+  flex: none;
+  color: #ff9500;
+  margin-top: 2px;
+}
+.rem-grip {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  margin-block: -3px;
+  margin-inline: 0 -8px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-3);
+  cursor: grab;
+  touch-action: none;
+  opacity: 0;
+  transition: opacity 150ms;
+}
+.rem-item:hover .rem-grip,
+.rem-item:focus-within .rem-grip,
+.rem-item.dragging .rem-grip {
+  opacity: 1;
+}
+@media (hover: none) {
+  .rem-grip {
+    opacity: 0.7;
+  }
+}
+.rem-item.dragging {
+  z-index: 5;
+  border-radius: var(--r-md) !important;
+  box-shadow: var(--shadow);
+  cursor: grabbing;
+}
+.rem-item.dragging::before {
+  display: none;
+}
+.rem-dragging,
+.rem-dragging * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+/* ——— selection mode ——— */
+.rem-selchk {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--text-3);
+  color: transparent;
+  transition: background 150ms;
+}
+.rem-item.sel,
+.rem-item.sel.clickable:hover {
+  background: color-mix(in srgb, var(--surface) 86%, var(--accent));
+}
+.rem-item.sel .rem-selchk,
+.rem-allchk.on .rem-selchk {
+  background: var(--accent);
+  box-shadow: none;
+  color: #fff;
+}
+.rem-allchk {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 18px;
+  padding: 4px 0;
+  font-size: 14px;
+  color: var(--text-2);
+}
+.rem-selbar {
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 10px 14px;
+  background: var(--bg);
+  box-shadow: 0 -1px 0 var(--divider);
+}
+.rem-selbtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 70px;
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  color: var(--text);
+}
+.rem-selbtn:hover {
+  background: rgba(128, 128, 128, 0.1);
+}
+.rem-selbtn.danger {
+  color: #e5484d;
+}
+.rem-selbtn:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+.rem-selecting .rem-addbar {
+  display: none;
+}
+
+/* ——— search ——— */
+.rem-searchbox {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin-bottom: 4px;
+  box-shadow: 0 0 0 6px var(--bg);
+}
+.rem-search-input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+/* ——— Write a reminder ——— */
+.rem-addbar {
+  position: absolute;
+  inset-inline: 14px;
+  bottom: 14px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 58px;
+  max-width: 732px;
+  margin: 0 auto;
+  padding: 6px 8px;
+  padding-inline-start: 16px;
+  border-radius: 29px;
+  background: var(--glass-strong);
+  backdrop-filter: blur(24px) saturate(1.6);
+  box-shadow: var(--shadow);
+}
+.rem-add-plus {
+  flex: none;
+  color: var(--accent);
+}
+.rem-add-field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-inline-start: 4px;
+}
+.rem-add-line {
+  position: relative;
+}
+.rem-add-input,
+.rem-add-mirror {
+  width: 100%;
+  font-size: 16px;
+  line-height: 24px;
+  padding: 6px 2px;
+  letter-spacing: normal;
+  font-family: var(--font);
+  text-align: start;
+  unicode-bidi: plaintext;
+}
+.rem-add-input {
+  position: relative;
+  z-index: 1;
+  border: 0;
+  outline: none;
+  background: none;
+  color: transparent;
+  caret-color: var(--text);
+}
+.rem-add-input::placeholder {
+  color: var(--text-3);
+}
+.rem-add-input::selection {
+  color: transparent;
+  background: var(--accent-soft);
+}
+.rem-add-mirror {
+  position: absolute;
+  inset: 0;
+  white-space: pre;
+  overflow: hidden;
+  color: var(--text);
+  pointer-events: none;
+}
+.rem-add-mirror mark {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 5px;
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.rem-add-mirror mark.k-imp {
+  color: #ff9500;
+  background: rgba(255, 149, 0, 0.16);
+  box-shadow: 0 0 0 2px rgba(255, 149, 0, 0.16);
+}
+.rem-add-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 10px;
+  margin: -3px 2px 3px;
+}
+.rem-add-chips:has(.rem-add-chip[hidden]):not(:has(.rem-add-tag)) {
+  display: none;
+}
+.rem-add-chip,
+.rem-add-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.rem-add-chip[hidden] {
+  display: none;
+}
+.rem-add-extra {
+  display: contents;
+}
+.rem-add-tag.cat {
+  color: var(--text-2);
+}
+.rem-add-tag.imp {
+  color: #ff9500;
+}
+.rem-add-more {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text-2);
+}
+.rem-add-more:hover {
+  background: rgba(128, 128, 128, 0.14);
+}
+.rem-add-btn {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--on-accent);
+  transition: opacity 150ms, transform 150ms, width 150ms;
+}
+.rem-add-btn:disabled {
+  opacity: 0;
+  width: 0;
+  transform: scale(0.6);
+  pointer-events: none;
+}
+
+/* ——— editor ——— */
+.rem-edit {
+  padding-top: 8px !important;
+}
+.rem-edit-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  padding-inline-end: 10px;
+}
+.rem-edit-head .rem-check {
+  margin-top: 4px;
+}
+.rem-edit-title {
+  flex: 1;
+  border: 0;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  background: none;
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--text);
+  padding: 0;
+  unicode-bidi: plaintext;
+}
+.rem-edit-title::placeholder {
+  color: var(--text-3);
+}
+.rem-edit-star {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  margin-top: -6px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text-3);
+  transition: color 150ms, transform 200ms var(--ease-spring);
+}
+.rem-edit-star:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+.rem-edit-star.on {
+  color: #ff9500;
+}
+.rem-edit-star:active {
+  transform: scale(0.85);
+}
+.rem-edit-due .ou-row-sub.overdue {
+  color: #e5484d;
+}
+.rem-edit-pickers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 18px 12px;
+  padding-inline-start: 66px;
+}
+.rem-edit-pickers[hidden] {
+  display: none;
+}
+.rem-edit-quick {
+  overflow: visible;
+  flex-wrap: wrap;
+}
+.rem-edit-quick .ou-chip {
+  height: 32px;
+  font-size: 13.5px;
+  background: var(--surface-2);
+  box-shadow: none;
+}
+.rem-edit-quick .ou-chip.active {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.rem-edit-dt {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 8px;
+}
+.rem-edit-when .ou-row[hidden] {
+  display: none;
+}
+.rem-edit-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.rem-subs {
+  display: flex;
+  flex-direction: column;
+}
+.rem-sub {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+.rem-sub + .rem-sub {
+  border-top: 1px solid var(--divider);
+}
+.rem-sub-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  font-size: 15.5px;
+  color: var(--text);
+  padding: 8px 0;
+  unicode-bidi: plaintext;
+}
+.rem-sub-input::placeholder {
+  color: var(--text-3);
+}
+.rem-sub.done .rem-sub-input {
+  color: var(--text-3);
+  text-decoration: line-through;
+}
+.rem-sub-plus {
+  width: 20px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+}
+.rem-sub-del {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text-3);
+  opacity: 0;
+}
+.rem-sub:hover .rem-sub-del,
+.rem-sub:focus-within .rem-sub-del {
+  opacity: 1;
+}
+@media (hover: none) {
+  .rem-sub-del {
+    opacity: 1;
+  }
+}
+.rem-sub-del:hover {
+  background: rgba(128, 128, 128, 0.14);
+}
+.rem-edit-notesbox {
+  padding: 14px 18px;
+}
+.rem-edit-notes {
+  background: none;
+  padding: 0;
+  min-height: 72px;
+  resize: none;
+  overflow: hidden;
+  border-radius: 0;
+  unicode-bidi: plaintext;
+}
+.rem-edit-notes:focus {
+  box-shadow: none;
+}
+.rem-edit-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  padding-inline-start: 18px;
+}
+.rem-edit-ico {
+  color: var(--text-2);
+}
+.rem-link-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 42px;
+  border: 0;
+  outline: none;
+  background: none;
+  font-size: 15px;
+  color: var(--accent);
+}
+.rem-link-input::placeholder {
+  color: var(--text-3);
+}
+[dir="rtl"] .rem-link-input {
+  text-align: end;
+}
+[dir="rtl"] .rem-link-input:placeholder-shown {
+  direction: rtl;
+  text-align: start;
+}
+.rem-imgs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+}
+.rem-img,
+.rem-img-add {
+  aspect-ratio: 1;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.rem-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.rem-img-add {
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1.5px var(--divider);
+}
+.rem-img-add:hover {
+  background: var(--accent-soft);
+}
+.rem-viewer {
+  width: min(92vw, 720px) !important;
+  max-width: none !important;
+}
+.rem-viewer-img {
+  display: block;
+  max-width: 100%;
+  max-height: 64vh;
+  margin: 8px auto 0;
+  border-radius: var(--r-sm);
+}
+.rem-edit-done,
+.rem-edit-save {
+  align-self: center;
+  min-width: 220px;
+  margin-top: 8px;
+}
+
+/* custom repeat */
+.rem-rep {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.rem-rep-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+}
+.rem-rep-n {
+  width: 90px;
+  text-align: center;
+}
+.rem-rep .ou-seg-btn {
+  padding: 0 6px;
+  font-size: 13px;
+}
+.rem-rep-days {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+}
+.rem-rep-days[hidden] {
+  display: none;
+}
+.rem-rep-day {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  background: var(--surface-2);
+}
+.rem-rep-day.on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.rem-rep-end {
+  margin: 0 -18px;
+  padding: 0;
+}
+.rem-rep input[type="date"][hidden] {
+  display: none;
+}
+
+/* category dialog */
+.rem-catdlg {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.rem-icons {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+.rem-iconpick {
+  aspect-ratio: 1;
+  max-width: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text-2);
+  background: var(--surface-2);
+  transition: background 150ms, color 150ms;
+}
+.rem-iconpick.active {
+  background: var(--c);
+  color: #fff;
+}
+
+/* edit categories */
+.rem-catedit .rem-catedit-row {
+  min-height: 60px;
+  padding: 8px 10px;
+  padding-inline-start: 18px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 0;
+}
+.rem-catedit .rem-catedit-row .rem-badge {
+  margin-inline-end: 6px;
+}
+.rem-catedit .rem-grip {
+  opacity: 1;
+  margin: 0;
+}
+.rem-catedit-gap {
+  width: 42px;
+}
+.rem-catedit > .rem-catedit-row:first-child {
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+.rem-catedit > .rem-catedit-row:last-child {
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+.rem-addcat-btn {
+  align-self: center;
+}
+
+/* ——— widgets ——— */
+.wg-reminder {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wg-rem-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.wg-rem-ico {
+  color: var(--wc, #2b9cf0);
+}
+.wg-rem-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wg-rem-count {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1;
+}
+.wg-rem-add {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(128, 128, 128, 0.18);
+  color: inherit;
+}
+.wg-rem-add:hover {
+  background: rgba(128, 128, 128, 0.3);
+}
+.wg-rem-list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.wg-reminder .rem-item.compact {
+  padding: 6px 0;
+  gap: 10px;
+  align-items: center;
+  background: none;
+}
+.wg-reminder .rem-item.compact + .rem-item.compact {
+  border-top: 1px solid rgba(128, 128, 128, 0.18);
+}
+.wg-reminder .rem-check {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  box-shadow: inset 0 0 0 1.8px color-mix(in srgb, var(--glass-text, #fff) 55%, transparent);
+  color: transparent;
+}
+.wg-reminder .rem-check.important {
+  box-shadow: inset 0 0 0 1.8px #ff9500;
+}
+.wg-reminder .rem-item.done .rem-check,
+.wg-reminder .rem-check.done {
+  color: #fff;
+  background: var(--accent);
+  box-shadow: none;
+}
+.wg-reminder .rem-item-title {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wg-reminder .rem-item-due {
+  font-size: 11.5px;
+  color: inherit;
+  opacity: 0.65;
+}
+.wg-reminder .rem-item-due.overdue {
+  color: #ff5a5f;
+  opacity: 1;
+}
+.wg-reminder .rem-star {
+  margin: 0;
+}
+.wg-reminder.w-s .rem-item-due {
+  display: none;
+}
+.wg-rem-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+.rem-item-title,
+.rem-item-notes,
+.rem-catrow .ou-row-title {
+  unicode-bidi: plaintext;
+}

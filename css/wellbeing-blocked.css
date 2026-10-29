@@ -1,0 +1,237 @@
+/* Digital Wellbeing pause page (wellbeing-blocked.html): One UI's calm "Site paused" card, "Focus mode is on" in the
+   mode's colour and "Bedtime mode is on" under a night sky. */
+html,
+body {
+  height: auto;
+  min-height: 100%;
+  overflow: auto;
+}
+body {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  background: var(--bg);
+  color: var(--text);
+}
+body.booting .wbb {
+  visibility: hidden;
+}
+.wbb-sky {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.wbb {
+  position: relative;
+  width: min(420px, 100%);
+  padding: 34px 26px 18px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: wbb-in 520ms var(--ease) both;
+}
+@keyframes wbb-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+}
+.wbb-art {
+  margin-bottom: 18px;
+}
+.wbb-title {
+  margin: 0 0 8px;
+  font-size: 23px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+.wbb-text {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.5;
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+}
+.wbb-site {
+  font-weight: 600;
+  color: var(--text);
+}
+.wbb-meta {
+  min-height: 20px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.wbb-meta:empty {
+  min-height: 0;
+  margin: 0;
+}
+.wbb-btns {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 24px;
+}
+.wbb-btn {
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: var(--r-pill);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+  transition: background 150ms, transform 120ms;
+}
+.wbb-btn:hover {
+  background: var(--accent-soft);
+}
+.wbb-btn:active {
+  transform: scale(0.98);
+}
+.wbb-btn.primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  margin-bottom: 4px;
+}
+.wbb-btn.primary:hover {
+  filter: brightness(1.06);
+}
+
+/* ——— Site paused: the site's icon greyed out with Samsung's hourglass badge ——— */
+.wbb-paused {
+  position: relative;
+  display: block;
+  width: 84px;
+  height: 84px;
+  --icon: 84px;
+}
+.wbb-paused .app-icon {
+  width: 84px;
+  height: 84px;
+  filter: grayscale(1);
+  opacity: 0.55;
+  box-shadow: none;
+}
+.wbb-badge {
+  position: absolute;
+  inset-inline-end: -8px;
+  bottom: -8px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ff8a3d;
+  color: #fff;
+  box-shadow: 0 0 0 4px var(--surface);
+}
+
+/* ——— Focus mode is on ——— */
+body.wbb-focus {
+  background: radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--mc) 30%, var(--bg)) 0%, var(--bg) 70%);
+}
+body.wbb-focus .wbb-meta {
+  color: var(--mc);
+}
+.wbb-mode {
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--mc);
+  color: #fff;
+  box-shadow: 0 10px 34px color-mix(in srgb, var(--mc) 45%, transparent);
+}
+body.wbb-focus .wbb-btn {
+  color: var(--mc);
+}
+body.wbb-focus .wbb-btn:hover {
+  background: color-mix(in srgb, var(--mc) 12%, transparent);
+}
+body.wbb-focus .wbb-btn.primary {
+  background: var(--mc);
+  color: #fff;
+}
+
+/* ——— Bedtime mode is on: always the night ——— */
+body.wbb-bedtime {
+  --bed: #8f9bff;
+  background: linear-gradient(180deg, #070a1f 0%, #121741 55%, #261f52 100%);
+  color: #eef0ff;
+}
+body.wbb-bedtime .wbb-sky {
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 18%, #fff9 50%, transparent),
+    radial-gradient(1px 1px at 28% 42%, #fff8 50%, transparent),
+    radial-gradient(1.5px 1.5px at 46% 12%, #fffa 50%, transparent),
+    radial-gradient(1px 1px at 64% 30%, #fff7 50%, transparent),
+    radial-gradient(1.5px 1.5px at 82% 16%, #fff9 50%, transparent),
+    radial-gradient(1px 1px at 90% 48%, #fff6 50%, transparent),
+    radial-gradient(1px 1px at 8% 70%, #fff6 50%, transparent),
+    radial-gradient(1.5px 1.5px at 72% 78%, #fff7 50%, transparent),
+    radial-gradient(1px 1px at 38% 86%, #fff5 50%, transparent);
+}
+body.wbb-bedtime .wbb {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(24px);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.14);
+}
+body.wbb-bedtime .wbb-text {
+  color: rgba(238, 240, 255, 0.72);
+}
+body.wbb-bedtime .wbb-site {
+  color: #fff;
+}
+.wbb-moon {
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #ffe69a;
+  background: radial-gradient(circle, rgba(255, 230, 154, 0.22), rgba(255, 230, 154, 0) 70%);
+}
+body.wbb-bedtime .wbb-btn {
+  color: var(--bed);
+}
+body.wbb-bedtime .wbb-btn:hover {
+  background: rgba(143, 155, 255, 0.14);
+}
+body.wbb-bedtime .wbb-btn.primary {
+  background: var(--bed);
+  color: #0b0e2a;
+}
+
+/* the site icon outside the new tab (shell.css isn't loaded here) */
+.wbb-paused .app-icon {
+  display: grid;
+  place-items: center;
+  border-radius: 32%;
+  overflow: hidden;
+  background: #f4f4f6;
+}
+.wbb-paused .app-icon img {
+  width: 54%;
+  height: 54%;
+  object-fit: contain;
+}
+.wbb-paused .app-icon.solid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.wbb-paused .app-letter {
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 500;
+  color: #fff;
+}
