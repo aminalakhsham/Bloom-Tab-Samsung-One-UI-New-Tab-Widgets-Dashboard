@@ -1552,13 +1552,19 @@ export function closePageManager(instant = false) {
   setTimeout(() => view.remove(), 220);
 }
 
+const PM_PAD = 6;
 function fillPM() {
   if (!pm) return;
   const { grid } = pm;
   const gw = M.cols * M.cellW, gh = M.rows * M.cellH;
-  const per = clamp(Math.floor((innerWidth - 64) / 250), 2, 5);
+  let per = clamp(Math.floor((innerWidth - 64) / 250), 2, 5);
   const tw = clamp(Math.floor((innerWidth - 64) / per) - 28, 150, 250);
-  const k = tw / gw, th = Math.round(gh * k);
+  // as many columns as fit the grid's width (min(1100px, 100vw - 48px), 28px gaps): rows fill from the start, so the
+  // last one lines up under the first instead of being centred
+  per = Math.max(1, Math.min(per, Math.floor((Math.min(1100, innerWidth - 48) + 28) / (tw + 28))));
+  // the page sits PM_PAD inside its frame, as it does inside the page frame while editing
+  const k = (tw - 2 * PM_PAD) / gw, th = Math.round(gh * k) + 2 * PM_PAD;
+  grid.style.setProperty('--pm-n', per);
   grid.style.setProperty('--pm-w', tw + 'px');
   grid.style.setProperty('--pm-h', th + 'px');
   const reals = pageEls();
@@ -1770,7 +1776,7 @@ function buildChrome() {
     h('button', { class: 'edit-btn', onClick: () => openThemes() }, h('span', { html: icon('hmThemes', 26) }), t('home.themes')),
     h('button', { class: 'edit-btn', onClick: () => openWidgetPicker() }, h('span', { html: icon('widgets', 26) }), t('home.widgets')),
     h('button', { class: 'edit-btn', onClick: () => openApp('settings', { params: { page: 'home' } }) }, h('span', { html: icon('settings', 26) }), t('home.settings')),
-    h('button', { class: 'edit-done', onClick: () => setEditing(false) }, t('common.done')));
+    h('button', { class: 'edit-done', onClick: () => setEditing(false) }, h('span', { class: 'edit-done-ico', html: icon('check', 22) }), t('common.done')));
   editTop = h('div', { class: 'edit-top' },
     h('button', { class: 'ou-icon-btn et-undo', title: t('common.undo') + ' (Ctrl+Z)', 'aria-label': t('common.undo'), html: icon('hmUndo', 22), disabled: true, onClick: () => undoHome(true) }),
     h('button', { class: 'ou-icon-btn et-redo', title: t('home.redo') + ' (Ctrl+Shift+Z)', 'aria-label': t('home.redo'), html: icon('hmRedo', 22), disabled: true, onClick: () => undoHome(false) }),

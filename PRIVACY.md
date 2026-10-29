@@ -1,6 +1,6 @@
 # Bloom Tab — Privacy Policy
 
-_Last updated: 2026-10-28_
+_Last updated: 2026-10-29_
 
 Bloom Tab replaces Chrome's New Tab page with a One UI–style home screen and built-in apps. It has no accounts,
 no servers of its own, no analytics, no ads and no tracking. **Everything you create stays on your computer.**
@@ -38,6 +38,7 @@ Bloom Tab contacts only these services, and only for the features named:
 | --- | --- | --- |
 | Open-Meteo (`api.open-meteo.com`, `geocoding-api.open-meteo.com`, `air-quality-api.open-meteo.com`) | Weather, rain alerts | The latitude/longitude of your weather locations, or the city name you search for |
 | Bing (`www.bing.com`) | Only if you choose the Bing daily wallpaper | A request for the picture of the day |
+| The website you're on, when you add it to the Home screen | Only when you choose Add to Home screen | A request for that site's icon and web app manifest, to show its icon |
 | Calendar subscription URLs you add yourself | Only if you subscribe to a calendar (.ics) | A request to the address you entered (Chrome asks for permission for that site first) |
 | Chrome's favicon service (local) | Website icons | Nothing leaves your computer: icons come from Chrome's own cache |
 | The search engine or AI assistant you choose | Only when you search or ask | Your query, sent by opening that site in a tab, as if you typed it there |

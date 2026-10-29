@@ -4,5 +4,6 @@
 .dev/.chrome.lock*
 .dev/i18n-tmp/
 dist/
+store/screens/
 __pycache__/
 .claude/

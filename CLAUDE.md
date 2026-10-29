@@ -16,7 +16,8 @@ One UI pop-up app windows and built-in apps. No accounts and no servers of our o
   phone/tablet. When in doubt, copy Samsung's behaviour, wording and layout.
 - The user writes short, informal English, sometimes with Arabic. **Arabic (RTL) must always work.**
 - Repo: `git@github.com:aminalakhsham/Bloom-Tab-Samsung-One-UI-New-Tab-Widgets-Dashboard.git` (branch `main`).
-  Commit and push only when the user asks; `dist/`, `.dev/shots/` and `.dev/node_modules/` are not committed.
+  Commit and push only when the user asks; `dist/`, `.dev/shots/`, `.dev/node_modules/` and `store/screens/` (raw
+  captures for the store images) are not committed.
 
 ## Ground rules
 
@@ -185,6 +186,12 @@ Dev tests drive the real extension in headless Chrome with Puppeteer (`.dev/node
 - `.dev/window-buttons.cjs`: the window handle bar's buttons win over the corner resize zones and sit inside the
   rounded corner.
 - Static: `node --check <file>` for syntax, `python3 scripts/check_i18n.py` for strings.
+- **Store images** (not tests; runall skips them): `OUT=store/screens W=1280 H=800 .dev/run.sh .dev/store-shots.cjs`
+  seeds made-up sample data for every app, sets the page clock to 10:10 tomorrow in London (tomorrow, so nothing the
+  pages schedule is already due in real time) and captures ~55 scenes (`SCENES=home,health,…` for some); then
+  `.dev/run.sh --raw node .dev/store-compose.cjs` builds `store/screenshot-1…5-*.png` (1280×800), `promo-small.png`
+  (440×280) and `promo-marquee.png` (1400×560) from them. Look at every image afterwards. All store texts (both
+  languages, permission justifications, data-use answers) are in `store/listing.md`.
 
 ## Roadmap: parity with Liquid Tab
 
@@ -237,7 +244,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started. The "Liquid Tab" column nam
 | S11 | Sync through chrome.storage.sync | Sync | ✅ (off by default) |
 | S12 | Tab workspaces, page-change alerts, rain alerts, break reminders | Workspaces, routines | 🟡 workspaces (Recents), rain alerts (Weather), breaks (Health) ✅; page-change alerts ⬜ |
 | S13 | Lock screen widgets for every app, unlock sound | Lock Screen widgets | ✅ (chips reorderable; no unlock sound) |
-| S14 | Release kit: `scripts/package.sh`, `store/listing.md`, `PRIVACY.md`, README | Release | 🟡 texts done; store images and the contact email missing |
+| S14 | Release kit: `scripts/package.sh`, `store/listing.md`, `PRIVACY.md`, README | Release | 🟡 texts (EN/AR) and store images done; the contact email and a public privacy-policy link missing |
 | S15 | Capture (screen recorder) suggestion — **ask the user first** | Capture suggestion | ⬜ |
 | S16 | More UI languages (Liquid Tab has 14) — **ask the user first** | i18n | ⬜ |
 
@@ -581,9 +588,29 @@ Still open:
   `.dev/widgets-gallery.cjs` now runs in 24-hour time (`H12=1` for 12-hour) and fails on visible
   null/undefined/NaN text; run it at `W=1366 H=620` too.
 
+- 2026-10-29: **Chrome Web Store images and texts.** `.dev/store-shots.cjs` + `.dev/store-compose.cjs` (see Testing) →
+  five captioned screenshots (Home with Lock screen and Now Brief; 9 apps; the essentials; multitasking; dark mode,
+  Arabic, PIN and wallpapers), the small promo tile and the marquee, in Bloom's purple bloom look with the icon drawn
+  as SVG. `store/listing.md` now holds every Dashboard text: name and summary with the trademark fallback, the full
+  description in English and Arabic, category, links, single purpose, a justification per permission (optional ones
+  too), remote code, data usage (only Location: weather coordinates to Open-Meteo), reviewer notes, version notes.
+  Found on the way: Health's service-worker notifications (awards, coaching, doses) ignored Settings › Notifications
+  and Do not disturb (its own `post()` skipped the mute list): fixed; the **serif clock font** (Lock screen, Daily
+  Board) drew its digits from Noto Naskh Arabic on Linux/ChromeOS (no Palatino/Georgia), whose deep descent pushed
+  them into the date: the generic `serif` now comes before the Arabic font. PRIVACY.md lists the site-icon request
+  of Add to Home screen.
+- 2026-10-29, from the user's screenshots of Home edit mode: the **page manager** centred its last row (page 4 and
+  "Add page" started under page 1, a hole under Now Brief) — it is a CSS grid now (`--pm-n` columns, rows fill from
+  the inline start) and each thumbnail shows the page 6px inside its frame without the copied edit-mode outline; the
+  **Now Brief page** scrolls without a scrollbar and fades out at the bottom (`.lp-scroll`); **Done** in the edit bar
+  is an icon-and-label button like its neighbours, after a thin divider (the page manager keeps the Done pill).
+
 ## Known issues
 
-- `background.cjs` can fail its `chrome.notifications.getAll()` checks when many Chromes run at once; it passes alone.
+- `background.cjs` sometimes fails its `chrome.notifications.getAll()` checks (timer/alarm/reminder/event system
+  notifications missing), now also when it runs alone — 2 of 4 runs on 2026-10-29 with the code as committed, so not
+  caused by that day's changes. The in-page entries are always there; waiting for Chrome's list (`sysWith()`) didn't
+  help, so headless Chrome seems to drop some. Rerun it before suspecting the service worker.
 - `.dev/runall.sh` clears its summary on every call: run it once with a filter, not once per suite in parallel.
 - Several workers editing at once briefly broke boot (a manifest entry or an import before its file existed);
   harmless now, but a release must be packaged from a quiet tree with smoke passing.

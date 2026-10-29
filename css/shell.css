@@ -793,6 +793,45 @@ body.home-edit .edit-bar {
   color: var(--on-accent);
   font-weight: 700;
 }
+/* In the edit bar Done looks like its neighbours, a label under an accent circle (a filled block was out of place),
+   after a thin divider. The page manager keeps the pill. */
+.edit-bar .edit-done {
+  position: relative;
+  min-width: 96px;
+  margin-inline-start: 0;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.edit-bar .edit-done:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+.edit-bar .edit-done::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -4px;
+  top: 16px;
+  bottom: 16px;
+  width: 1px;
+  background: currentColor;
+  opacity: 0.16;
+}
+.edit-done-ico {
+  width: 30px;
+  height: 30px;
+  margin: -2px 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+}
 .add-page {
   display: grid;
   place-items: center;
@@ -939,10 +978,16 @@ body.home-edit .left-page {
 .left-page[hidden] {
   display: none;
 }
+/* the widget column scrolls without a scrollbar (as One UI's); it fades out at the bottom instead of a hard cut */
 .lp-scroll {
   height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-width: none;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+}
+.lp-scroll::-webkit-scrollbar {
+  display: none;
 }
 .lp-col {
   width: calc(var(--lp-cell) * 4);
@@ -1097,8 +1142,8 @@ body.home-edit .left-page {
 .pm-grid {
   width: min(1100px, calc(100vw - 48px));
   margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(var(--pm-n, 4), var(--pm-w));
   justify-content: center;
   gap: 18px 28px;
 }
@@ -1153,15 +1198,20 @@ body.home-edit .left-page {
 }
 .pm-inner {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 6px;
+  left: 6px;
   transform-origin: 0 0;
   pointer-events: none;
 }
 [dir="rtl"] .pm-inner {
   left: auto;
-  right: 0;
+  right: 6px;
   transform-origin: 100% 0;
+}
+/* the copied page keeps its edit-mode frame otherwise: a second outline inside the thumbnail's own */
+body.home-edit .pm-inner .page-grid {
+  background: none;
+  box-shadow: none;
 }
 .pm-inner .tile-label {
   color: #fff;

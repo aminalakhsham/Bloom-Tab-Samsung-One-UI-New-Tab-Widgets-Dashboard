@@ -22,7 +22,9 @@ let brief = null; // js/shell/brief.js once loaded (the Now Brief card and the m
 export const CLOCK_FONTS = {
   outfit: 'var(--font-display)',
   inter: 'var(--font)',
-  serif: '"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Noto Naskh Arabic", serif',
+  // the generic serif before the Arabic font: without Palatino or Georgia (Linux, ChromeOS) Chrome otherwise drew the
+  // digits from Noto Naskh Arabic, whose deep descent pushed them up into the date above
+  serif: '"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Noto Serif", serif, "Noto Naskh Arabic"',
   mono: 'ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace',
 };
 export const CLOCK_STYLES = ['stacked', 'classic', 'thin', 'left'];

@@ -5,6 +5,8 @@ pages of apps, websites, folders and widgets, the Quick Panel, the Edge panel, F
 twenty built-in apps. No account, no ads, no tracking — everything stays on your computer. English and Arabic,
 light and dark.
 
+![Bloom Tab: Home screen, Lock screen and Now Brief](store/screenshot-1-home.png)
+
 ## Features
 
 **Lock screen and Now Brief**
@@ -81,7 +83,8 @@ feature that needs them.
 - Tests drive the real extension in headless Chrome: `cd .dev && npm i` once, then `.dev/run.sh .dev/<suite>.cjs`
   (`THEME=dark`, `UI=ar`) or `.dev/runall.sh` for everything; plain-node logic tests are `.dev/*.mjs`.
 - `python3 scripts/check_i18n.py` checks that every string has English and Arabic.
-- `scripts/package.sh` builds `dist/bloom-tab-<version>.zip` for the Chrome Web Store (texts in `store/listing.md`).
+- `scripts/package.sh` builds `dist/bloom-tab-<version>.zip` for the Chrome Web Store (texts in `store/listing.md`,
+  images in `store/`, remade by `.dev/store-shots.cjs` and `.dev/store-compose.cjs`).
 
 ## Credits
 

@@ -8,7 +8,7 @@
 // Alarms (kind "health"): health:tick (every minute), health:coach (evening), health:plan (twice a day),
 // health:med:<slot> and health:medf:<slot> (<slot> = YYYY-MM-DDTHH:MM). Notifications: health:med:<slot>,
 // health:coach:<day>, health:ring:<ring>:<day>, health:award:<id>:<day>.
-import { onAlarm, onButton, openTarget, onMessage, bgStrings, fmt, bgLocale, uid, ICON, IDLE_SECONDS, addToList } from './hub.js';
+import { onAlarm, onButton, openTarget, onMessage, bgStrings, fmt, bgLocale, uid, ICON, IDLE_SECONDS, addToList, dndActive } from './hub.js';
 import * as M from '../health/model.js';
 import * as R from '../health/rings.js';
 
@@ -78,7 +78,12 @@ export const idleQueue = () => Promise.all([actQ, queue(() => {})]);
 /** A system notification plus an entry in the in-page list. The in-page entry (shown on the Lock screen) gets
  *  `pageBody` instead of the body when the body holds private details such as medication names. */
 async function post(id, { title, body = '', pageBody = body, buttons, sticky = false }) {
-  await addToList({ app: 'health', title, body: pageBody, icon: 'heart' });
+  // the same rules as hub post(): Health's notifications turned off post nothing, Do not disturb keeps them in the list
+  const { settings: s = {} } = await chrome.storage.local.get('settings');
+  if ((s.mutedApps || []).includes('health')) return;
+  const quiet = dndActive(s.dnd);
+  await addToList({ app: 'health', title, body: pageBody, icon: 'heart', ...(quiet && { silent: true }) });
+  if (quiet) return;
   chrome.notifications.create(id, { type: 'basic', iconUrl: ICON, title, message: body || ' ', priority: sticky ? 2 : 1, requireInteraction: sticky, buttons });
 }
 

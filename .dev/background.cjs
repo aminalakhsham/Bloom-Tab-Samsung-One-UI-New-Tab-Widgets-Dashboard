@@ -23,6 +23,9 @@ module.exports = async ({ browser, page, url, boot, ok, sw, sleep, getStorage, s
   };
   /** Waits for a new entry in `notifications` matching pred (or returns null after ms). */
   const newNotif = (pred, ms) => until(async () => (await notifs()).find(pred), ms);
+  /** Chrome's notifications once all of `ids` are there (or as they are after 6 s): hub post() writes the in-page
+   *  entry first and creates the system notification after it, so reading right after the entry appears races it. */
+  const sysWith = async (...ids) => (await until(async () => { const x = await sys(); return ids.every((id) => x[id]) ? x : null; })) || sys();
   const pad = (n) => String(n).padStart(2, '0');
 
   await boot({ settings: { lang: 'en' } });
@@ -52,7 +55,7 @@ module.exports = async ({ browser, page, url, boot, ok, sw, sleep, getStorage, s
   ok(tm('t1').running === false && tm('t1').endsAt === null && tm('t1').remaining === 60e3 && tm('t1').rangInPage === false, 'timer: reset to its full duration, not running');
   ok(!(await notifs()).some((n) => n.ref === 't3'), 'timer already rung by a visible tab (rangInPage) posts nothing');
   ok(!(await notifs()).some((n) => n.ref === 't4') && tm('t4').running && tm('t4').endsAt > now(), 'timer re-scheduled since (+1 min) is left running, no notification');
-  let s = await sys();
+  let s = await sysWith('timer:t1', 'timer:t2');
   ok(s['timer:t1'] && s['timer:t2'] && !s['timer:t3'] && !s['timer:t4'], 'timer: system notifications timer:t1 and timer:t2 only');
 
   // ———————————————————————————————— clock alarms
@@ -87,13 +90,12 @@ module.exports = async ({ browser, page, url, boot, ok, sw, sleep, getStorage, s
   const a3next = await alarm('alarm:a3');
   ok(a3next && a3next.scheduledTime > now() && a3next.scheduledTime - now() <= 7 * 864e5 && new Date(a3next.scheduledTime).getDay() === 1 && hhmm(new Date(a3next.scheduledTime)) === '08:00', 'repeating alarm (Mondays 08:00) rescheduled to the next Monday 08:00');
   ok(!(await notifs()).some((n) => n.ref === 'gone'), 'alarm id with no stored alarm posts nothing');
-  s = await sys();
+  s = await sysWith('alarm:a1', 'alarm:a2');
   ok(s['alarm:a1'] && s['alarm:a2'], 'alarm: system notifications alarm:a1 and alarm:a2');
   // Snooze button (index 0) on an alarm notification: rings again in 5 minutes
   await sw.evaluate(() => chrome.alarms.clear('alarm:a1'));
   await sw.evaluate(() => chrome.notifications.onButtonClicked.dispatch('alarm:a1', 0));
-  await sleep(400);
-  const snz = await alarm('alarm:a1');
+  const snz = await until(async () => { const a = await alarm('alarm:a1'); return a && a.scheduledTime > now() + 60e3 ? a : null; }, 4000);
   ok(snz && Math.abs(snz.scheduledTime - (now() + 5 * 60e3)) < 5000, 'alarm Snooze button reschedules alarm:a1 in 5 minutes');
   ok(!(await sys())['alarm:a1'], 'clicking a button clears the system notification');
   await sw.evaluate(() => chrome.alarms.clear('alarm:a1'));
@@ -115,7 +117,7 @@ module.exports = async ({ browser, page, url, boot, ok, sw, sleep, getStorage, s
   ok(r2?.body === 'Before noon', 'reminder with notes uses them as the body');
   await sleep(500);
   ok(!(await notifs()).some((n) => n.ref === 'r3'), 'completed reminder posts nothing');
-  s = await sys();
+  s = await sysWith('reminder:r1', 'reminder:r2');
   ok(s['reminder:r1'] && s['reminder:r2'] && !s['reminder:r3'], 'reminder: system notifications for r1 and r2 only');
   // Done (0) and Snooze 10 min (1) buttons
   await sw.evaluate(() => chrome.notifications.onButtonClicked.dispatch('reminder:r1', 0));
@@ -149,7 +151,7 @@ module.exports = async ({ browser, page, url, boot, ok, sw, sleep, getStorage, s
   ok(e3?.body === 'Upcoming event', 'all-day event says "Upcoming event"');
   await sleep(400);
   ok(!(await notifs()).some((n) => n.ref === 'missing'), 'deleted event posts nothing');
-  s = await sys();
+  s = await sysWith('event:e1', 'event:e2', 'event:e3');
   ok(s['event:e1'] && s['event:e2'] && s['event:e3'], 'event: system notifications');
 
   // ———————————————————————————————— Focus
@@ -163,7 +165,7 @@ module.exports = async ({ browser, page, url, boot, ok, sw, sleep, getStorage, s
   ok((await get('focus')) === null, 'focus: the session is cleared');
   let log = await get('focusLog');
   ok(log.length === 2 && log[0].start === fStart && log[0].end > fStart + 24 * 60e3, 'focus: the session is logged first in focusLog');
-  ok((await sys()).focus, 'focus: system notification "focus"');
+  ok((await sysWith('focus')).focus, 'focus: system notification "focus"');
   // a tab already logged this session (it clears focus when it sees it end): no duplicate
   await setStorage({ notifications: [], focus: { startedAt: fStart, endsAt: now() + 1000, minutes: 25 } });
   await fire('focus');
