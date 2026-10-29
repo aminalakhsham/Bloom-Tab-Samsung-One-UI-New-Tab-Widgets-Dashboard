@@ -620,3 +620,4 @@ Still open:
 | Date | Commit | What |
 | --- | --- | --- |
 | 2026-10-29 | c36f392 | Bloom Tab 1.0.0: first commit — 20 apps, the One UI shell, tests, release kit |
+| 2026-10-29 | 7c3bf01 | Store screenshots, promo tiles and EN/AR listing texts; page manager, Now Brief page and edit bar fixes; Health notification mute, serif clock font |
